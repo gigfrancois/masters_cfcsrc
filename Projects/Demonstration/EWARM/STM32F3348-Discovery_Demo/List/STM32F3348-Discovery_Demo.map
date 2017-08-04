@@ -1,0 +1,589 @@
+###############################################################################
+#
+# IAR ELF Linker V8.11.2.13589/W32 for ARM                04/Aug/2017  02:37:32
+# Copyright 2007-2017 IAR Systems AB.
+#
+#    Output file  =  
+#        C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Exe\STM32F3348-Discovery_Demo.out
+#    Map file     =  
+#        C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\List\STM32F3348-Discovery_Demo.map
+#    Command line =  
+#        -f C:\Users\gigfr\AppData\Local\Temp\EWF55F.tmp
+#        ("C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\main.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\startup_stm32f334x8.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_adc.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_can.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_comp.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_crc.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_dac.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_dbgmcu.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_dma.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_exti.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_flash.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_gpio.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_hrtim.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_i2c.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_iwdg.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_misc.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_opamp.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_pwr.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_rcc.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_rtc.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_spi.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_syscfg.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_tim.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_usart.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f30x_wwdg.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f3348_discovery.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\stm32f3xx_it.o"
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj\system_stm32f30x.o"
+#        --redirect _Printf=_PrintfSmallNoMb --redirect _Scanf=_ScanfSmallNoMb
+#        -o
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Exe\STM32F3348-Discovery_Demo.out"
+#        --map
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\List\STM32F3348-Discovery_Demo.map"
+#        --config
+#        "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10-
+#        uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\stm32f3348_flash.icf"
+#        --semihosting --entry __iar_program_start --vfe --text_out locale)
+#
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor       = *
+__SystemLibrary = DLib
+__dlib_version  = 6
+
+
+*******************************************************************************
+*** HEAP SELECTION
+***
+
+The basic heap was selected because no calls to memory allocation
+functions were found in the application outside of system library
+functions, and there are calls to deallocation functions in the
+application.
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"A0":  place at 0x08000000 { ro section .intvec };
+"P1":  place in [from 0x08000000 to 0x0800ffff] { ro };
+define block CSTACK with size = 1K, alignment = 8 { };
+define block HEAP with size = 512, alignment = 8 { };
+"P2":  place in [from 0x20000000 to 0x20002fff] {
+          rw, block CSTACK, block HEAP };
+initialize by copy { rw };
+
+  Section            Kind        Address    Size  Object
+  -------            ----        -------    ----  ------
+"A0":                                      0x188
+  .intvec            ro code  0x08000000   0x188  startup_stm32f334x8.o [1]
+                            - 0x08000188   0x188
+
+"P1":                                     0x35b0
+  .text              ro code  0x08000188  0x10bc  main.o [1]
+  .text              ro code  0x08001244   0x340  stm32f30x_rcc.o [1]
+  .text              ro code  0x08001584   0x145  stm32f3348_discovery.o [1]
+  .text              ro code  0x080016ca    0x7a  lz77_init_single.o [5]
+  .text              ro code  0x08001744   0x624  stm32f30x_hrtim.o [1]
+  .text              ro code  0x08001d68   0x178  DblAdd.o [4]
+  .text              ro code  0x08001ee0    0x2e  DblCmpGe.o [4]
+  .text              ro code  0x08001f10    0x2e  DblCmpLe.o [4]
+  .text              ro code  0x08001f40   0x1a2  DblMul.o [4]
+  .text              ro code  0x080020e4    0x68  DblToFlt.o [4]
+  .text              ro code  0x0800214c    0x48  FltToDbl.o [4]
+  .text              ro code  0x08002194    0x12  math_wrappers64.o [4]
+  .text              ro code  0x080021a8   0x124  stm32f30x_dma.o [1]
+  .text              ro code  0x080022cc    0x92  stm32f30x_dac.o [1]
+  .text              ro code  0x08002360    0x9a  stm32f30x_gpio.o [1]
+  .text              ro code  0x080023fc    0x58  stm32f30x_comp.o [1]
+  .text              ro code  0x08002454    0x68  stm32f30x_misc.o [1]
+  .text              ro code  0x080024bc   0x2b4  stm32f30x_adc.o [1]
+  .text              ro code  0x08002770    0x28  stm32f30x_syscfg.o [1]
+  .text              ro code  0x08002798   0x108  stm32f30x_exti.o [1]
+  .text              ro code  0x080028a0    0xe2  DblSub.o [4]
+  .text              ro code  0x08002984    0x4c  exp64.o [4]
+  .text              ro code  0x080029d0   0x418  iar_Exp64.o [4]
+  .text              ro code  0x08002de8   0x13a  ldexp.o [4]
+  .text              ro code  0x08002f24    0x3a  DblToS32.o [4]
+  .text              ro code  0x08002f60    0x22  S32ToDbl.o [4]
+  .text              ro code  0x08002f84   0x246  DblDiv.o [4]
+  .text              ro code  0x080031cc   0x240  stm32f3xx_it.o [1]
+  .text              ro code  0x0800340c    0xf8  system_stm32f30x.o [1]
+  .text              ro code  0x08003504    0x40  zero_init3.o [5]
+  .text              ro code  0x08003544    0x28  data_init.o [5]
+  .text              ro code  0x0800356c    0x22  fpinit_M.o [4]
+  .iar.init_table    const    0x08003590    0x20  - Linker created -
+  .text              ro code  0x080035b0    0x1a  cmain.o [5]
+  .text              ro code  0x080035ca     0x4  low_level_init.o [3]
+  .text              ro code  0x080035ce     0x4  exit.o [3]
+  .text              ro code  0x080035d4     0xa  cexit.o [5]
+  .text              ro code  0x080035e0    0x14  exit.o [6]
+  .text              ro code  0x080035f4    0x10  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003604     0xc  cstartup_M.o [5]
+  .text              ro code  0x08003610     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003614     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003618     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800361c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003620     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003624     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003628     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800362c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003630     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003634     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003638     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800363c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003640     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003644     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003648     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800364c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003650     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003654     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003658     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800365c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003660     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003664     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003668     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800366c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003670     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003674     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003678     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800367c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003680     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003684     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003688     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800368c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003690     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003694     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x08003698     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x0800369c     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036a0     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036a4     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036a8     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036ac     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036b0     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036b4     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036b8     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036bc     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036c0     0x4  startup_stm32f334x8.o [1]
+  .text              ro code  0x080036c4     0x4  startup_stm32f334x8.o [1]
+  .rodata            const    0x080036c8     0x0  zero_init3.o [5]
+  .rodata            const    0x080036c8     0x0  lz77_init_single.o [5]
+  Initializer bytes  const    0x080036c8    0x70  <for P2-1>
+                            - 0x08003738  0x35b0
+
+"P2", part 1 of 3:                         0x1c0
+  P2-1                        0x20000000   0x1c0  <Init block>
+    .data            inited   0x20000000    0x78  main.o [1]
+    .data            inited   0x20000078    0x84  main.o [1]
+    .data            inited   0x200000fc    0x80  main.o [1]
+    .data            inited   0x2000017c    0x30  stm32f30x_rcc.o [1]
+    .data            inited   0x200001ac    0x10  stm32f3348_discovery.o [1]
+    .data            inited   0x200001bc     0x4  stm32f3348_discovery.o [1]
+                            - 0x200001c0   0x1c0
+
+"P2", part 2 of 3:                          0x5c
+  .bss               zero     0x200001c0    0x54  main.o [1]
+  .bss               zero     0x20000214     0x4  stm32f3xx_it.o [1]
+  .bss               zero     0x20000218     0x3  stm32f3xx_it.o [1]
+  .bss               zero     0x2000021b     0x1  main.o [1]
+                            - 0x2000021c    0x5c
+
+"P2", part 3 of 3:                         0x400
+  CSTACK                      0x20000220   0x400  <Block>
+    CSTACK           uninit   0x20000220   0x400  <Block tail>
+                            - 0x20000620   0x400
+
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+          Address     Size
+          -------     ----
+Zero (__iar_zero_init3)
+    1 destination range, total size 0x5c:
+          0x200001c0   0x5c
+
+Copy/lz77 (__iar_lz77_init_single3)
+    1 source range, total size 0x70 (25% of destination):
+          0x080036c8   0x70
+    1 destination range, total size 0x1c0:
+          0x20000000  0x1c0
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module                  ro code  ro data  rw data
+    ------                  -------  -------  -------
+C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10- uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj: [1]
+    main.o                    4 284       95      465
+    startup_stm32f334x8.o       592
+    stm32f30x_adc.o             692
+    stm32f30x_comp.o             88
+    stm32f30x_dac.o             146
+    stm32f30x_dma.o             292
+    stm32f30x_exti.o            264
+    stm32f30x_gpio.o            154
+    stm32f30x_hrtim.o         1 572
+    stm32f30x_misc.o            104
+    stm32f30x_rcc.o             832       12       48
+    stm32f30x_syscfg.o           40
+    stm32f3348_discovery.o      325        5       20
+    stm32f3xx_it.o              576                 7
+    system_stm32f30x.o          248
+    -------------------------------------------------
+    Total:                   10 209      112      540
+
+command line: [2]
+    -------------------------------------------------
+    Total:
+
+dl7M_tln.a: [3]
+    exit.o                        4
+    low_level_init.o              4
+    -------------------------------------------------
+    Total:                        8
+
+m7M_tls.a: [4]
+    DblAdd.o                    376
+    DblCmpGe.o                   46
+    DblCmpLe.o                   46
+    DblDiv.o                    582
+    DblMul.o                    418
+    DblSub.o                    226
+    DblToFlt.o                  104
+    DblToS32.o                   58
+    FltToDbl.o                   72
+    S32ToDbl.o                   34
+    exp64.o                      76
+    fpinit_M.o                   34
+    iar_Exp64.o               1 048
+    ldexp.o                     314
+    math_wrappers64.o            18
+    -------------------------------------------------
+    Total:                    3 452
+
+rt7M_tl.a: [5]
+    cexit.o                      10
+    cmain.o                      26
+    cstartup_M.o                 12
+    data_init.o                  40
+    lz77_init_single.o          122
+    zero_init3.o                 64
+    -------------------------------------------------
+    Total:                      274
+
+shb_l.a: [6]
+    exit.o                       20
+    -------------------------------------------------
+    Total:                       20
+
+    Gaps                         27        2
+    Linker created                        32    1 024
+-----------------------------------------------------
+    Grand Total:             13 990      146    1 564
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                      Address   Size  Type      Object
+-----                      -------   ----  ----      ------
+.iar.init_table$$Base   0x08003590          --   Gb  - Linker created -
+.iar.init_table$$Limit  0x080035b0          --   Gb  - Linker created -
+?main                   0x080035b1         Code  Gb  cmain.o [5]
+ADC1ReferenceConvertedValue
+                        0x20000088    0x2  Data  Gb  main.o [1]
+ADC1_2_IRQHandler       0x0800323f   0x4a  Code  Gb  stm32f3xx_it.o [1]
+ADC1_Channel1_ConvertedValue_IN
+                        0x200000e4    0x4  Data  Gb  main.o [1]
+ADC1_Channel1_ConvertedValue_OUT
+                        0x200000e8    0x4  Data  Gb  main.o [1]
+ADCPrescTable           0x2000018c   0x20  Data  Lc  stm32f30x_rcc.o [1]
+ADC_ClearFlag           0x08002755    0x4  Code  Gb  stm32f30x_adc.o [1]
+ADC_ClearITPendingBit   0x0800276d    0x4  Code  Gb  stm32f30x_adc.o [1]
+ADC_Cmd                 0x08002593   0x12  Code  Gb  stm32f30x_adc.o [1]
+ADC_CommonInit          0x08002549   0x4a  Code  Gb  stm32f30x_adc.o [1]
+ADC_CommonInitStructure
+                        0x200001e0   0x14  Data  Lc  main.o [1]
+ADC_Config              0x08000ed5  0x1e8  Code  Lc  main.o [1]
+ADC_GetCalibrationStatus
+                        0x080025c5    0x6  Code  Gb  stm32f30x_adc.o [1]
+ADC_GetCalibrationValue
+                        0x080025af    0x6  Code  Gb  stm32f30x_adc.o [1]
+ADC_GetConversionValue  0x080026c1    0x6  Code  Gb  stm32f30x_adc.o [1]
+ADC_GetDisableCmdStatus
+                        0x080025cb    0x6  Code  Gb  stm32f30x_adc.o [1]
+ADC_GetFlagStatus       0x08002747    0xe  Code  Gb  stm32f30x_adc.o [1]
+ADC_GetInjectedConversionValue
+                        0x0800271b   0x1c  Code  Gb  stm32f30x_adc.o [1]
+ADC_GetStartConversionStatus
+                        0x080026b7    0x4  Code  Gb  stm32f30x_adc.o [1]
+ADC_ITConfig            0x08002737   0x10  Code  Gb  stm32f30x_adc.o [1]
+ADC_Init                0x080024bd   0x36  Code  Gb  stm32f30x_adc.o [1]
+ADC_InitStructure       0x200001c0   0x20  Data  Lc  main.o [1]
+ADC_InjectedChannelSampleTimeConfig
+                        0x080026c7   0x40  Code  Gb  stm32f30x_adc.o [1]
+ADC_InjectedInit        0x08002509   0x2c  Code  Gb  stm32f30x_adc.o [1]
+ADC_InjectedInitStruct  0x200001f4   0x1c  Data  Lc  main.o [1]
+ADC_InjectedStructInit  0x08002535   0x14  Code  Gb  stm32f30x_adc.o [1]
+ADC_RegularChannelConfig
+                        0x0800260f   0x90  Code  Gb  stm32f30x_adc.o [1]
+ADC_SelectCalibrationMode
+                        0x080025b5   0x10  Code  Gb  stm32f30x_adc.o [1]
+ADC_StartCalibration    0x080025a5    0xa  Code  Gb  stm32f30x_adc.o [1]
+ADC_StartConversion     0x080026ad    0xa  Code  Gb  stm32f30x_adc.o [1]
+ADC_StartInjectedConversion
+                        0x08002707    0xa  Code  Gb  stm32f30x_adc.o [1]
+ADC_StopInjectedConversion
+                        0x08002711    0xa  Code  Gb  stm32f30x_adc.o [1]
+ADC_StructInit          0x080024f3   0x16  Code  Gb  stm32f30x_adc.o [1]
+ADC_VoltageRegulatorCmd
+                        0x080025d1   0x1a  Code  Gb  stm32f30x_adc.o [1]
+ADC_VrefintCmd          0x080025eb   0x24  Code  Gb  stm32f30x_adc.o [1]
+APBAHBPrescTable        0x2000017c   0x10  Data  Lc  stm32f30x_rcc.o [1]
+BUTTON_CLK              0x080016b8    0x4  Data  Gb  stm32f3348_discovery.o [1]
+BUTTON_EXTI_LINE        0x080016bc    0x2  Data  Gb  stm32f3348_discovery.o [1]
+BUTTON_IRQn             0x080016c8    0x1  Data  Gb  stm32f3348_discovery.o [1]
+BUTTON_PIN              0x080016b4    0x2  Data  Gb  stm32f3348_discovery.o [1]
+BUTTON_PIN_SOURCE       0x080016c4    0x1  Data  Gb  stm32f3348_discovery.o [1]
+BUTTON_PORT             0x200001bc    0x4  Data  Gb  stm32f3348_discovery.o [1]
+BUTTON_PORT_SOURCE      0x080016c0    0x1  Data  Gb  stm32f3348_discovery.o [1]
+BuckInit                0x080005e3  0x114  Code  Lc  main.o [1]
+BusFault_Handler        0x080031d3    0x2  Code  Gb  stm32f3xx_it.o [1]
+COMP_Cmd                0x08002431   0x1e  Code  Gb  stm32f30x_comp.o [1]
+COMP_DeInit             0x080023fd    0xa  Code  Gb  stm32f30x_comp.o [1]
+COMP_Init               0x08002407   0x2a  Code  Gb  stm32f30x_comp.o [1]
+CSTACK$$Base            0x20000220          --   Gb  - Linker created -
+CSTACK$$Limit           0x20000620          --   Gb  - Linker created -
+Converter_Mode_Change   0x2000008e    0x2  Data  Gb  main.o [1]
+Counter10us             0x20000219    0x1  Data  Gb  stm32f3xx_it.o [1]
+Counter32               0x20000218    0x1  Data  Gb  stm32f3xx_it.o [1]
+CurrentSenseTab         0x200000d0   0x14  Data  Gb  main.o [1]
+Current_Mode            0x2000008c    0x2  Data  Gb  main.o [1]
+DAC_Cmd                 0x08002329   0x16  Code  Gb  stm32f30x_dac.o [1]
+DAC_DeInit              0x080022cd   0x32  Code  Gb  stm32f30x_dac.o [1]
+DAC_Init                0x08002305   0x24  Code  Gb  stm32f30x_dac.o [1]
+DAC_SetChannel1Data     0x08002345    0xc  Code  Gb  stm32f30x_dac.o [1]
+DMA_Cmd                 0x0800227b   0x18  Code  Gb  stm32f30x_dma.o [1]
+DMA_DeInit              0x080021a9   0x9c  Code  Gb  stm32f30x_dma.o [1]
+DMA_Init                0x08002245   0x36  Code  Gb  stm32f30x_dma.o [1]
+DebugMon_Handler        0x080031d9    0x2  Code  Gb  stm32f3xx_it.o [1]
+Delay                   0x080011e5   0x1c  Code  Gb  main.o [1]
+DitherTab               0x200000fc   0x80  Data  Gb  main.o [1]
+DownUp                  0x20000000    0x1  Data  Gb  main.o [1]
+EXTI0_IRQHandler        0x08003289   0x9a  Code  Gb  stm32f3xx_it.o [1]
+EXTI_ClearITPendingBit  0x08002875    0x2  Code  Gb  stm32f30x_exti.o [1]
+EXTI_Init               0x08002799   0xd0  Code  Gb  stm32f30x_exti.o [1]
+FallingSlope            0x2000021a    0x1  Data  Gb  stm32f3xx_it.o [1]
+GPIO_CLK                0x080016a4   0x10  Data  Gb  stm32f3348_discovery.o [1]
+GPIO_Init               0x08002361   0x6a  Code  Gb  stm32f30x_gpio.o [1]
+GPIO_InitStructure      0x20000078    0x8  Data  Gb  main.o [1]
+GPIO_PIN                0x0800169c    0x8  Data  Gb  stm32f3348_discovery.o [1]
+GPIO_PORT               0x200001ac   0x10  Data  Gb  stm32f3348_discovery.o [1]
+GPIO_PinAFConfig        0x080023d9   0x22  Code  Gb  stm32f30x_gpio.o [1]
+GPIO_ReadInputDataBit   0x080023cb    0xe  Code  Gb  stm32f30x_gpio.o [1]
+HRTIM1_Master_IRQHandler
+                        0x0800334f   0x6c  Code  Gb  stm32f3xx_it.o [1]
+HRTIM1_TIMA_IRQHandler  0x08003323   0x2c  Code  Gb  stm32f3xx_it.o [1]
+HRTIM_ADCTriggerConfig  0x08001a33   0x58  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_BurstModeConfig   0x080019f9   0x38  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_BurstModeCtl      0x08001a8b   0x10  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_ClearCommonITPendingBit
+                        0x0800185b    0x2  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_ClearFlag         0x08001839   0x1a  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_Config            0x08000705  0x1a8  Code  Lc  main.o [1]
+HRTIM_DLLCalibrationStart
+                        0x080017c7   0x24  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_DMACmd            0x08001879   0x26  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_DeadTimeConfig    0x080019b3   0x3c  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_EventConfig       0x08001a31    0x2  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_ExternalEventConfig
+                        0x08001c13  0x144  Code  Lc  stm32f30x_hrtim.o [1]
+HRTIM_GetCommonFlagStatus
+                        0x08001869   0x10  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_ITCommonConfig    0x08001825   0x14  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_ITConfig          0x080017ff   0x26  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_MasterBase_Config
+                        0x08001a9b   0x2a  Code  Lc  stm32f30x_hrtim.o [1]
+HRTIM_OutputConfig      0x08001b9d   0x76  Code  Lc  stm32f30x_hrtim.o [1]
+HRTIM_SetBurstCompare   0x08000999   0x12  Code  Gb  main.o [1]
+HRTIM_SimpleBase_Init   0x08001745    0xe  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_SlaveSetCompare   0x08001987   0x2a  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_TIM_OutputStructure
+                        0x20000090   0x20  Data  Gb  main.o [1]
+HRTIM_TimerWaveStructure
+                        0x200000b0   0x20  Data  Gb  main.o [1]
+HRTIM_TimingUnitBase_Config
+                        0x08001ac5   0x34  Code  Lc  stm32f30x_hrtim.o [1]
+HRTIM_TimingUnitWaveform_Config
+                        0x08001afd   0xa0  Code  Lc  stm32f30x_hrtim.o [1]
+HRTIM_Unselect_OutputTIMx
+                        0x080011a3   0x38  Code  Lc  main.o [1]
+HRTIM_WaveformCompareConfig
+                        0x08001915   0x72  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_WaveformCounterStart
+                        0x080017eb    0x8  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_WaveformOutputConfig
+                        0x080019b1    0x2  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_WaveformOutputStart
+                        0x080017f3    0x6  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_WaveformOutputStop
+                        0x080017f9    0x6  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_WaveformTimerConfig
+                        0x080018bf   0x56  Code  Gb  stm32f30x_hrtim.o [1]
+HRTIM_Waveform_Init     0x08001753   0x74  Code  Gb  stm32f30x_hrtim.o [1]
+HardFault_Handler       0x080031cf    0x2  Code  Gb  stm32f3xx_it.o [1]
+Keypressed              0x2000008a    0x2  Data  Gb  main.o [1]
+MemManage_Handler       0x080031d1    0x2  Code  Gb  stm32f3xx_it.o [1]
+NMI_Handler             0x080031cd    0x2  Code  Gb  stm32f3xx_it.o [1]
+NVIC_Init               0x08002455   0x56  Code  Gb  stm32f30x_misc.o [1]
+NVIC_InitStructure      0x20000080    0x4  Data  Lc  main.o [1]
+NoWait                  0x20000001    0x1  Data  Gb  main.o [1]
+PendSV_Handler          0x080031db    0x2  Code  Gb  stm32f3xx_it.o [1]
+RCC_ADCCLKConfig        0x080014e1   0x20  Code  Gb  stm32f30x_rcc.o [1]
+RCC_AHBPeriphClockCmd   0x08001513   0x12  Code  Gb  stm32f30x_rcc.o [1]
+RCC_APB1PeriphClockCmd  0x08001537   0x12  Code  Gb  stm32f30x_rcc.o [1]
+RCC_APB1PeriphResetCmd  0x08001549   0x12  Code  Gb  stm32f30x_rcc.o [1]
+RCC_APB2PeriphClockCmd  0x08001525   0x12  Code  Gb  stm32f30x_rcc.o [1]
+RCC_Clocks              0x2000001c   0x50  Data  Gb  main.o [1]
+RCC_GetClocksFreq       0x08001245  0x29c  Code  Gb  stm32f30x_rcc.o [1]
+RCC_HRTIM1CLKConfig     0x08001501    0x8  Code  Gb  stm32f30x_rcc.o [1]
+REFINT_CAL              0x20000086    0x2  Data  Gb  main.o [1]
+Ratio                   0x200000f4    0x4  Data  Gb  main.o [1]
+Region$$Table$$Base     0x08003590          --   Gb  - Linker created -
+Region$$Table$$Limit    0x080035b0          --   Gb  - Linker created -
+STM_EVAL_LEDInit        0x08001585   0x3a  Code  Gb  stm32f3348_discovery.o [1]
+STM_EVAL_LEDOff         0x080015d1   0x12  Code  Gb  stm32f3348_discovery.o [1]
+STM_EVAL_LEDOn          0x080015bf   0x12  Code  Gb  stm32f3348_discovery.o [1]
+STM_EVAL_PBGetState     0x08001681   0x12  Code  Gb  stm32f3348_discovery.o [1]
+STM_EVAL_PBInit         0x080015e3   0x94  Code  Gb  stm32f3348_discovery.o [1]
+SVC_Handler             0x080031d7    0x2  Code  Gb  stm32f3xx_it.o [1]
+SYSCFG_EXTILineConfig   0x08002771   0x22  Code  Gb  stm32f30x_syscfg.o [1]
+SenseTab                0x20000008   0x14  Data  Lc  main.o [1]
+SetHRTIM_BoostMode      0x0800112d   0x24  Code  Gb  main.o [1]
+SetHRTIM_BuckMode       0x08001109   0x24  Code  Gb  main.o [1]
+StateMachine            0x20000002    0x1  Data  Gb  main.o [1]
+SysTick_Handler         0x080031dd   0x62  Code  Gb  stm32f3xx_it.o [1]
+SystemInit              0x0800340d   0xda  Code  Gb  system_stm32f30x.o [1]
+TESTMODE                0x20000004    0x2  Data  Gb  main.o [1]
+Tempo                   0x20000070    0x4  Data  Gb  main.o [1]
+TestProgram             0x080009ab  0x420  Code  Lc  main.o [1]
+TimingDelay             0x2000006c    0x4  Data  Lc  main.o [1]
+TimingDelay_Decrement   0x08001201    0xe  Code  Gb  main.o [1]
+TriangCMP1              0x20000084    0x2  Data  Gb  main.o [1]
+TriangleGeneration      0x20000003    0x1  Data  Gb  main.o [1]
+TriangleGenerationInit  0x080008c1   0xba  Code  Lc  main.o [1]
+UsageFault_Handler      0x080031d5    0x2  Code  Gb  stm32f3xx_it.o [1]
+VIN                     0x200000ec    0x4  Data  Gb  main.o [1]
+VOUT                    0x200000f0    0x4  Data  Gb  main.o [1]
+VOUT_Target             0x200000f8    0x4  Data  Gb  main.o [1]
+__aeabi_cdcmple         0x08001f11         Code  Gb  DblCmpLe.o [4]
+__aeabi_cdrcmple        0x08001ee1         Code  Gb  DblCmpGe.o [4]
+__aeabi_d2f             0x080020e5         Code  Gb  DblToFlt.o [4]
+__aeabi_d2iz            0x08002f25         Code  Gb  DblToS32.o [4]
+__aeabi_dadd            0x08001d69         Code  Gb  DblAdd.o [4]
+__aeabi_ddiv            0x08002f85         Code  Gb  DblDiv.o [4]
+__aeabi_dmul            0x08001f41         Code  Gb  DblMul.o [4]
+__aeabi_dsub            0x080028a1         Code  Gb  DblSub.o [4]
+__aeabi_f2d             0x0800214d         Code  Gb  FltToDbl.o [4]
+__aeabi_i2d             0x08002f61         Code  Gb  S32ToDbl.o [4]
+__cmain                 0x080035b1         Code  Gb  cmain.o [5]
+__exit                  0x080035e1   0x14  Code  Gb  exit.o [6]
+__iar_Exp64             0x080029d1  0x3b8  Code  Gb  iar_Exp64.o [4]
+__iar_dadd              0x080028b1         Code  Gb  DblSub.o [4]
+__iar_data_init3        0x08003545   0x28  Code  Gb  data_init.o [5]
+__iar_dsub              0x08001d79         Code  Gb  DblAdd.o [4]
+__iar_dsubStart         0x08001d8b         Code  Gb  DblAdd.o [4]
+__iar_exp64             0x08002985   0x4c  Code  Gb  exp64.o [4]
+__iar_exp_medium        0x08002985   0x4c  Code  Gb  exp64.o [4]
+__iar_exp_medium64      0x08002985   0x4c  Code  Gb  exp64.o [4]
+__iar_exp_mediuml       0x08002985   0x4c  Code  Gb  exp64.o [4]
+__iar_init_vfp          0x0800356d         Code  Gb  fpinit_M.o [4]
+__iar_ldexp64           0x08002de9         Code  Gb  ldexp.o [4]
+__iar_lz77_init_single3
+                        0x080016cb   0x7a  Code  Gb  lz77_init_single.o [5]
+__iar_program_start     0x08003605         Code  Gb  cstartup_M.o [5]
+__iar_scalbln64         0x08002de9         Code  Gb  ldexp.o [4]
+__iar_scalbn64          0x08002de9         Code  Gb  ldexp.o [4]
+__iar_systems$$module {Abs}
+                        0x00000001         Data  Gb  command line/config [2]
+__iar_vfp_exp           0x0800219b    0xc  Code  Gb  math_wrappers64.o [4]
+__iar_zero_init3        0x08003505   0x40  Code  Gb  zero_init3.o [5]
+__low_level_init        0x080035cb    0x4  Code  Gb  low_level_init.o [3]
+__vector_table          0x08000000         Data  Gb  startup_stm32f334x8.o [1]
+_call_main              0x080035bd         Code  Gb  cmain.o [5]
+_exit                   0x080035d5         Code  Gb  cexit.o [5]
+_main                   0x080035c7         Code  Gb  cmain.o [5]
+calibration_value       0x20000210    0x4  Data  Lc  main.o [1]
+exit                    0x080035cf    0x4  Code  Gb  exit.o [3]
+exp                     0x08002985   0x4c  Code  Gb  exp64.o [4]
+expl                    0x08002985   0x4c  Code  Gb  exp64.o [4]
+index1                  0x2000021b    0x1  Data  Gb  main.o [1]
+index2                  0x20000214    0x4  Data  Gb  stm32f3xx_it.o [1]
+ldexp                   0x08002de9         Code  Gb  ldexp.o [4]
+ldexpl                  0x08002de9         Code  Gb  ldexp.o [4]
+main                    0x08000189  0x3a6  Code  Gb  main.o [1]
+scalbln                 0x08002de9         Code  Gb  ldexp.o [4]
+scalblnl                0x08002de9         Code  Gb  ldexp.o [4]
+scalbn                  0x08002de9         Code  Gb  ldexp.o [4]
+scalbnl                 0x08002de9         Code  Gb  ldexp.o [4]
+variable                0x20000074    0x4  Data  Gb  main.o [1]
+
+
+[1] = C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10- uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\STM32F3348-Discovery_Demo\Obj
+[2] = command line
+[3] = dl7M_tln.a
+[4] = m7M_tls.a
+[5] = rt7M_tl.a
+[6] = shb_l.a
+
+  13 990 bytes of readonly  code memory
+     146 bytes of readonly  data memory
+   1 564 bytes of readwrite data memory
+
+Errors: none
+Warnings: none
