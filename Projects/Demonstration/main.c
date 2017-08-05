@@ -100,6 +100,24 @@ static void TestProgram(void);
 void SetHRTIM_BuckMode(void);
 void SetHRTIM_BoostMode(void);
 static void HRTIM_Unselect_OutputTIMx(void);
+void initGpios(void);
+
+void initGpios(void) {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  
+  /* Enable the clocks on the different GPIO groups*/
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+  
+  /*LEDs*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
 
 /**
 * @brief   Main program
@@ -119,284 +137,283 @@ int main(void)
   To reconfigure the default setting of SystemInit() function, refer to
   system_stm32f30x.c file
   */  
+
   
   /* SysTick end of count event each 1ms */
   RCC_GetClocksFreq(&RCC_Clocks);
-  SysTick_Config(RCC_Clocks.HCLK_Frequency / 100000);
+  
+  SysTick_Config(1000);
+  
   /* Allows temporization */
   NoWait = FALSE;
   
-  /* Initialize LEDs available on STM32F3348-DISCO */
-  STM_EVAL_LEDInit(LED3);
-  STM_EVAL_LEDInit(LED4);
-  STM_EVAL_LEDInit(LED5);
-  STM_EVAL_LEDInit(LED6);
+  initGpios();
   
-  /* Initialize User_Button on STM32F3348-DISCO */
-  STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_EXTI);   
+  int test = 0;
   
-  /* Check if TestProgram is called by User button at startup*/
-  if((STM_EVAL_PBGetState(BUTTON_USER) == SET))
-  {
-    while((STM_EVAL_PBGetState(BUTTON_USER) == SET))
-    {
-      /* Toggle LED5/LED6 to show TestProgram selection until key pressed */
-      STM_EVAL_LEDOn(LED6);
-      Delay(7000);
-      STM_EVAL_LEDOff(LED6);
-      STM_EVAL_LEDOn(LED5);
-      Delay(7000);
-      STM_EVAL_LEDOff(LED5);       
-    } 
-    STM_EVAL_LEDOff(LED6);   
-    STM_EVAL_LEDOff(LED5);
-    /* Jump to TestProgram function */
-    TESTMODE = TRUE;
-    TestProgram();
-  }
+  while (1) {test++;}
   
-  /* Initializes HRTIM, DAC, DMA and COMP to drive Buck LED*/
-  BuckInit();
+//  while(1) {
+//    GPIO_SetBits(GPIOA, GPIO_Pin_4);
+//    Delay(100000);
+//    GPIO_ResetBits(GPIOA, GPIO_Pin_4);
+//    
+//    GPIO_SetBits(GPIOA, GPIO_Pin_5);
+//    Delay(50000);
+//    GPIO_ResetBits(GPIOA, GPIO_Pin_5);
+//    
+//    GPIO_SetBits(GPIOA, GPIO_Pin_6);
+//    Delay(25000);
+//    GPIO_ResetBits(GPIOA, GPIO_Pin_6);
+//  }
+//  
+//  /* Jump to TestProgram function */
+//  TESTMODE = TRUE;
+//  //TestProgram();
   
-  /* Initializes HRTIM to generate a triangle signal on PB14 */
-  TriangleGenerationInit();
   
-  /* Infinite loop */
-  while (1)
-  { 
-    switch (StateMachine)
-    {
-      
-    case STATE_MAN:
-      /* Disable HRTIM Master Burst period interrupt */
-      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, DISABLE);
-      /* Reset all signal LEDs */
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED4);
-      STM_EVAL_LEDOff(LED5);
-      STM_EVAL_LEDOff(LED6); 
-      
-      TriangleGeneration=0;
-      /* Disable the TD1 output */
-      HRTIM_WaveformOutputStop(HRTIM1, HRTIM_OUTPUT_TD1);
-      
-      /* By keeping pressed User push-button, intensity can be adjusted manually */
-      /* Alternatively the LED intensity is increased or decreased */
-      /* Always starts with low intensity value for first time */ 
-      /* Decrease LED intensity */
-      while((STM_EVAL_PBGetState(BUTTON_USER) == SET) && (DownUp==TRUE))
-      {
-        /* Display Decrease LED */
-        STM_EVAL_LEDOn(LED6);
-        STM_EVAL_LEDOff(LED3);
-        /* Temporization active */
-        NoWait = FALSE;
-        HRTIM_SetBurstCompare(midvalue);
-        midvalue++;
-        Delay(1000);
-        /* Check if min. intensity reached */
-        if (midvalue >= Min_Intensity)
-        {
-          midvalue = Min_Intensity;
-          /* Then blink display LED min. intensity */
-          STM_EVAL_LEDOff(LED6);
-          Delay(10000);
-        }
-      }
-      /* Increase LED intensity */
-      while((STM_EVAL_PBGetState(BUTTON_USER) == SET) && (DownUp==FALSE))
-      { 
-        /* Display Increase LED */
-        STM_EVAL_LEDOff(LED6);
-        STM_EVAL_LEDOn(LED3);        
-        /* Temporization active */
-        NoWait = FALSE;
-        HRTIM_SetBurstCompare(midvalue);
-        midvalue--;
-        Delay(1000);
-        /* Check if max. intensity reached */
-        if (midvalue <= Max_Intensity)
-        {
-          midvalue = Max_Intensity;
-          /* Then blink display LED max. intensity */
-          STM_EVAL_LEDOff(LED3);
-          Delay(10000);
-        }
-      }
-      
-      break; 
-      
-    case STATE_OFF:
-      /* This mode disables LED dimmer or flash */
-      /* Disable HRTIM Master Burst period interrupt */
-      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, DISABLE);
-      DownUp = TRUE;
-      midvalue = 625;
-      /* BUCK LED is OFF, only signal LEDs are blinking */
-      HRTIM_SetBurstCompare(Min_Intensity);
-      /* Define initial blinking time between two LEDs 400ms */
-      NoWait = FALSE;
-      /* Red LED ON */
-      STM_EVAL_LEDOn(LED3);
-      Delay(Tempo);
-      STM_EVAL_LEDOff(LED3);
-      /* Green LED ON */
-      STM_EVAL_LEDOn(LED5);
-      Delay(Tempo);
-      STM_EVAL_LEDOff(LED5);
-      /* Blue LED ON */
-      STM_EVAL_LEDOn(LED6);
-      Delay(Tempo);    
-      STM_EVAL_LEDOff(LED6);
-      /* Orange LED ON */
-      STM_EVAL_LEDOn(LED4);
-      Delay(Tempo);
-      STM_EVAL_LEDOff(LED4);
-      
-      TriangleGeneration=1;
-      /* Enable the TD1 output */
-      HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TD1);
-      
-      /* Decrease time between blinking sequence */
-      Tempo = Tempo /2;
-      if(Tempo==1)
-      {
-        Tempo = 40000;
-      }
-      
-      break; 
-      
-    case STATE_DIMMER:
-      
-      /* The LED intensity is automatically controlled */
-      /* Levels of current thresholds are progressively set */
-      /* Intensity variation and flicker removal are enhanced thanks to dither sequences 
-         that allows greater precision by steps */
-      DownUp = TRUE;
-      midvalue = 625;
-      /* Reset all signal LEDs */
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED4);
-      STM_EVAL_LEDOff(LED5);
-      STM_EVAL_LEDOff(LED6); 
-      
-      TriangleGeneration=0;
-      /* Disable the TD1 output */
-      HRTIM_WaveformOutputStop(HRTIM1, HRTIM_OUTPUT_TD1);
-      
-      NoWait =FALSE;
-      /* Set signal LEDs to rising mode */
-      STM_EVAL_LEDOn(LED3);
-      STM_EVAL_LEDOff(LED6);
-      /* Start with current thresholds set to minimum */
-      SenseTab[0]= 80;
-      SenseTab[1]= 40;
-      SenseTab[2]= 0;
-      SenseTab[3]= 160;
-      SenseTab[4]= 120;
-      CurrentSenseTab[0]= 0;
-      CurrentSenseTab[1]= 0;
-      CurrentSenseTab[2]= 0;
-      CurrentSenseTab[3]= 0;
-      CurrentSenseTab[4]= 0;
-      /* Set variable at minimum intensity */
-      variable = Min_Intensity;
-      /* Enable HRTIM Master Burst period interrupt */
-      /* Each time the interrupt is serviced, the LED is driven */
-      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, ENABLE);
-      /* Intensity changes from Min to Max */
-      for(variable = Min_Intensity; variable >= Max_Intensity && NoWait == FALSE;variable-=0.1)
-      {
-        /* Increment progressively all thresholds up to the setting value (centered value is ~250mA)*/
-        if(variable > 605 + 0.1)
-        {
-          for (i=0;i<5;i++)
-          {
-            SenseTab[i] ++;
-            CurrentSenseTab[i] = SenseTab[i] * 4096 / 3300;
-          }
-        }
-        /* Delay between 2 steps is decreased exponentially */
-        y = ((variable/100) * 1.1);
-        y = exp((double) y);
-        Delay((uint32_t) y);
-      }
-      
-      /* Set signal LEDs to falling mode */
-      /* Intensity falling phase */
-      STM_EVAL_LEDOn(LED6);
-      STM_EVAL_LEDOff(LED3);
-      /* Intensity changes from Max to Min */
-      for(variable = Max_Intensity; variable <= Min_Intensity && NoWait == FALSE;variable+=0.1)
-      {
-        /* Decrement progressively all thresholds down to 0*/
-        if(variable > 605)
-        {
-          for (i=0;i<5;i++)
-          {
-            SenseTab[i] --;
-            CurrentSenseTab[i] = SenseTab[i] * 4096 / 3300;
-          }
-        }
-        /* Delay between 2 steps is increased exponentially */
-        y = ((variable/100) * 1.1);
-        y = exp((double) y);
-        Delay((uint32_t) y);
-      }      
-      
-      break;
-      
-    case STATE_FLASH:
-      /* Flash mode consists to drive the LED @10Hz frequency (20% time ON) at maximum intensity */
-      /* Disable HRTIM Master Burst period interrupt */      
-      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, DISABLE);
-      /* (Re)Initialization of Current thresholds */
-      DownUp = TRUE;
-      midvalue = 625;
-      /* Reset all signal LEDs except green*/       
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED6);
-      /* Alternatively signals LED4 and LED5 are toggled */ 
-      if (toggle)
-      {
-        STM_EVAL_LEDOn(LED4);
-        STM_EVAL_LEDOff(LED5);
-      }
-      else
-      {
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOn(LED5);
-      }
-      
-      TriangleGeneration=0;
-      /* Disable the TD1 output */
-      HRTIM_WaveformOutputStop(HRTIM1, HRTIM_OUTPUT_TD1);
-      
-      NoWait =FALSE; 
-      /* freq= 10Hz tON = 20ms; tOFF = 80ms */
-      /* BUCK LED ON */
-      HRTIM_SetBurstCompare(Max_Intensity);
-      /* tON = 20ms */
-      Delay(2000);
-      /* Alternatively signals LED4 and LED5 are toggled */ 
-      if (toggle)
-      {
-        STM_EVAL_LEDOff(LED4);
-        STM_EVAL_LEDOn(LED5);
-      }
-      else
-      {
-        STM_EVAL_LEDOn(LED4);
-        STM_EVAL_LEDOff(LED5);
-      }     
-      
-      /* BUCK LED OFF */
-      HRTIM_SetBurstCompare(Min_Intensity);
-      /* tOFF = 80 ms */
-      Delay(8000);
-      toggle =!toggle;
-    }
-  }
+//  /* Initializes HRTIM, DAC, DMA and COMP to drive Buck LED*/
+//  BuckInit();
+//  
+//  /* Initializes HRTIM to generate a triangle signal on PB14 */
+//  TriangleGenerationInit();
+//  
+//  /* Infinite loop */
+//  while (1)
+//  { 
+//    switch (StateMachine)
+//    {
+//      
+//    case STATE_MAN:
+//      /* Disable HRTIM Master Burst period interrupt */
+//      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, DISABLE);
+//      /* Reset all signal LEDs */
+//      STM_EVAL_LEDOff(LED3);
+//      STM_EVAL_LEDOff(LED4);
+//      STM_EVAL_LEDOff(LED5);
+//      STM_EVAL_LEDOff(LED6); 
+//      
+//      TriangleGeneration=0;
+//      /* Disable the TD1 output */
+//      HRTIM_WaveformOutputStop(HRTIM1, HRTIM_OUTPUT_TD1);
+//      
+//      /* By keeping pressed User push-button, intensity can be adjusted manually */
+//      /* Alternatively the LED intensity is increased or decreased */
+//      /* Always starts with low intensity value for first time */ 
+//      /* Decrease LED intensity */
+//      while((STM_EVAL_PBGetState(BUTTON_USER) == SET) && (DownUp==TRUE))
+//      {
+//        /* Display Decrease LED */
+//        STM_EVAL_LEDOn(LED6);
+//        STM_EVAL_LEDOff(LED3);
+//        /* Temporization active */
+//        NoWait = FALSE;
+//        HRTIM_SetBurstCompare(midvalue);
+//        midvalue++;
+//        Delay(1000);
+//        /* Check if min. intensity reached */
+//        if (midvalue >= Min_Intensity)
+//        {
+//          midvalue = Min_Intensity;
+//          /* Then blink display LED min. intensity */
+//          STM_EVAL_LEDOff(LED6);
+//          Delay(10000);
+//        }
+//      }
+//      /* Increase LED intensity */
+//      while((STM_EVAL_PBGetState(BUTTON_USER) == SET) && (DownUp==FALSE))
+//      { 
+//        /* Display Increase LED */
+//        STM_EVAL_LEDOff(LED6);
+//        STM_EVAL_LEDOn(LED3);        
+//        /* Temporization active */
+//        NoWait = FALSE;
+//        HRTIM_SetBurstCompare(midvalue);
+//        midvalue--;
+//        Delay(1000);
+//        /* Check if max. intensity reached */
+//        if (midvalue <= Max_Intensity)
+//        {
+//          midvalue = Max_Intensity;
+//          /* Then blink display LED max. intensity */
+//          STM_EVAL_LEDOff(LED3);
+//          Delay(10000);
+//        }
+//      }
+//      
+//      break; 
+//      
+//    case STATE_OFF:
+//      /* This mode disables LED dimmer or flash */
+//      /* Disable HRTIM Master Burst period interrupt */
+//      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, DISABLE);
+//      DownUp = TRUE;
+//      midvalue = 625;
+//      /* BUCK LED is OFF, only signal LEDs are blinking */
+//      HRTIM_SetBurstCompare(Min_Intensity);
+//      /* Define initial blinking time between two LEDs 400ms */
+//      NoWait = FALSE;
+//      /* Red LED ON */
+//      STM_EVAL_LEDOn(LED3);
+//      Delay(Tempo);
+//      STM_EVAL_LEDOff(LED3);
+//      /* Green LED ON */
+//      STM_EVAL_LEDOn(LED5);
+//      Delay(Tempo);
+//      STM_EVAL_LEDOff(LED5);
+//      /* Blue LED ON */
+//      STM_EVAL_LEDOn(LED6);
+//      Delay(Tempo);    
+//      STM_EVAL_LEDOff(LED6);
+//      /* Orange LED ON */
+//      STM_EVAL_LEDOn(LED4);
+//      Delay(Tempo);
+//      STM_EVAL_LEDOff(LED4);
+//      
+//      TriangleGeneration=1;
+//      /* Enable the TD1 output */
+//      HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TD1);
+//      
+//      /* Decrease time between blinking sequence */
+//      Tempo = Tempo /2;
+//      if(Tempo==1)
+//      {
+//        Tempo = 40000;
+//      }
+//      
+//      break; 
+//      
+//    case STATE_DIMMER:
+//      
+//      /* The LED intensity is automatically controlled */
+//      /* Levels of current thresholds are progressively set */
+//      /* Intensity variation and flicker removal are enhanced thanks to dither sequences 
+//         that allows greater precision by steps */
+//      DownUp = TRUE;
+//      midvalue = 625;
+//      /* Reset all signal LEDs */
+//      STM_EVAL_LEDOff(LED3);
+//      STM_EVAL_LEDOff(LED4);
+//      STM_EVAL_LEDOff(LED5);
+//      STM_EVAL_LEDOff(LED6); 
+//      
+//      TriangleGeneration=0;
+//      /* Disable the TD1 output */
+//      HRTIM_WaveformOutputStop(HRTIM1, HRTIM_OUTPUT_TD1);
+//      
+//      NoWait =FALSE;
+//      /* Set signal LEDs to rising mode */
+//      STM_EVAL_LEDOn(LED3);
+//      STM_EVAL_LEDOff(LED6);
+//      /* Start with current thresholds set to minimum */
+//      SenseTab[0]= 80;
+//      SenseTab[1]= 40;
+//      SenseTab[2]= 0;
+//      SenseTab[3]= 160;
+//      SenseTab[4]= 120;
+//      CurrentSenseTab[0]= 0;
+//      CurrentSenseTab[1]= 0;
+//      CurrentSenseTab[2]= 0;
+//      CurrentSenseTab[3]= 0;
+//      CurrentSenseTab[4]= 0;
+//      /* Set variable at minimum intensity */
+//      variable = Min_Intensity;
+//      /* Enable HRTIM Master Burst period interrupt */
+//      /* Each time the interrupt is serviced, the LED is driven */
+//      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, ENABLE);
+//      /* Intensity changes from Min to Max */
+//      for(variable = Min_Intensity; variable >= Max_Intensity && NoWait == FALSE;variable-=0.1)
+//      {
+//        /* Increment progressively all thresholds up to the setting value (centered value is ~250mA)*/
+//        if(variable > 605 + 0.1)
+//        {
+//          for (i=0;i<5;i++)
+//          {
+//            SenseTab[i] ++;
+//            CurrentSenseTab[i] = SenseTab[i] * 4096 / 3300;
+//          }
+//        }
+//        /* Delay between 2 steps is decreased exponentially */
+//        y = ((variable/100) * 1.1);
+//        y = exp((double) y);
+//        Delay((uint32_t) y);
+//      }
+//      
+//      /* Set signal LEDs to falling mode */
+//      /* Intensity falling phase */
+//      STM_EVAL_LEDOn(LED6);
+//      STM_EVAL_LEDOff(LED3);
+//      /* Intensity changes from Max to Min */
+//      for(variable = Max_Intensity; variable <= Min_Intensity && NoWait == FALSE;variable+=0.1)
+//      {
+//        /* Decrement progressively all thresholds down to 0*/
+//        if(variable > 605)
+//        {
+//          for (i=0;i<5;i++)
+//          {
+//            SenseTab[i] --;
+//            CurrentSenseTab[i] = SenseTab[i] * 4096 / 3300;
+//          }
+//        }
+//        /* Delay between 2 steps is increased exponentially */
+//        y = ((variable/100) * 1.1);
+//        y = exp((double) y);
+//        Delay((uint32_t) y);
+//      }      
+//      
+//      break;
+//      
+//    case STATE_FLASH:
+//      /* Flash mode consists to drive the LED @10Hz frequency (20% time ON) at maximum intensity */
+//      /* Disable HRTIM Master Burst period interrupt */      
+//      HRTIM_ITCommonConfig(HRTIM1, HRTIM_IT_BMPER, DISABLE);
+//      /* (Re)Initialization of Current thresholds */
+//      DownUp = TRUE;
+//      midvalue = 625;
+//      /* Reset all signal LEDs except green*/       
+//      STM_EVAL_LEDOff(LED3);
+//      STM_EVAL_LEDOff(LED6);
+//      /* Alternatively signals LED4 and LED5 are toggled */ 
+//      if (toggle)
+//      {
+//        STM_EVAL_LEDOn(LED4);
+//        STM_EVAL_LEDOff(LED5);
+//      }
+//      else
+//      {
+//        STM_EVAL_LEDOff(LED4);
+//        STM_EVAL_LEDOn(LED5);
+//      }
+//      
+//      TriangleGeneration=0;
+//      /* Disable the TD1 output */
+//      HRTIM_WaveformOutputStop(HRTIM1, HRTIM_OUTPUT_TD1);
+//      
+//      NoWait =FALSE; 
+//      /* freq= 10Hz tON = 20ms; tOFF = 80ms */
+//      /* BUCK LED ON */
+//      HRTIM_SetBurstCompare(Max_Intensity);
+//      /* tON = 20ms */
+//      Delay(2000);
+//      /* Alternatively signals LED4 and LED5 are toggled */ 
+//      if (toggle)
+//      {
+//        STM_EVAL_LEDOff(LED4);
+//        STM_EVAL_LEDOn(LED5);
+//      }
+//      else
+//      {
+//        STM_EVAL_LEDOn(LED4);
+//        STM_EVAL_LEDOff(LED5);
+//      }     
+//      
+//      /* BUCK LED OFF */
+//      HRTIM_SetBurstCompare(Min_Intensity);
+//      /* tOFF = 80 ms */
+//      Delay(8000);
+//      toggle =!toggle;
+//    }
+//  }
 }
 
 
@@ -781,38 +798,18 @@ static void TestProgram(void)
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB|RCC_AHBPeriph_GPIOC, ENABLE);
   
   /* Configure H bridge BuckBoost converter N and P MOS output config */
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;  
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;  
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11;  
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;  
   GPIO_Init(GPIOA, &GPIO_InitStructure);
-  
-#ifdef Debug  
-  /* For Debug only */
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;  
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;  
-  GPIO_Init(GPIOB, &GPIO_InitStructure); 
-#endif
-  
-  /* Initialize User_Button on STM32F3348-DISCO */
-  STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_EXTI);
     
-  /* Configure HRTIM drivers PA8/PA9/PA10/PA11 HRTIM_CHA1/A2/B1/B2 */
-  /* Alternate function configuration : HRTIM_CHA1/A2/B1/B2 / PA8-9-10-11 */
+  /* Configure HRTIM drivers PA8 HRTIM_CHA1 */
+  /* Alternate function configuration : HRTIM_CHA1 / PA8 */
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_13); /* A */
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_13); /* B */
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_13); /* C */ 
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_13); /* D */
-  
+
   /* HRTIM intialisation startup */  
-  HRTIM_DLLCalibrationStart(HRTIM1, HRTIM_CALIBRATIONRATE_14);
-  while((HRTIM_GetCommonFlagStatus(HRTIM1,HRTIM_FLAG_DLLRDY)) == RESET)
-  {
-  }
   
   /* Configure the output features */  
   HRTIM_TIM_OutputStructure.Polarity = HRTIM_OUTPUTPOLARITY_HIGH; 
@@ -824,7 +821,6 @@ static void TestProgram(void)
   HRTIM_TIM_OutputStructure.ChopperModeEnable = HRTIM_OUTPUTCHOPPERMODE_DISABLED;        
   HRTIM_TIM_OutputStructure.BurstModeEntryDelayed = HRTIM_OUTPUTBURSTMODEENTRY_REGULAR;
   HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_OUTPUT_TA1, &HRTIM_TIM_OutputStructure);
-  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_B, HRTIM_OUTPUT_TB1, &HRTIM_TIM_OutputStructure);
 
   /* HRTIM1_TIMA and HRTIM1_TIMB Deadtime enable */
   HRTIM_TimerWaveStructure.DeadTimeInsertion = HRTIM_TIMDEADTIMEINSERTION_ENABLED;
@@ -836,7 +832,6 @@ static void TestProgram(void)
   HRTIM_TimerWaveStructure.ResetUpdate = HRTIM_TIMUPDATEONRESET_DISABLED;
   HRTIM_TimerWaveStructure.UpdateTrigger = HRTIM_TIMUPDATETRIGGER_NONE; 
   HRTIM_WaveformTimerConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_TimerWaveStructure);
-  HRTIM_WaveformTimerConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_B, &HRTIM_TimerWaveStructure);
   
   /* Configure HRTIM1_TIMA Deadtime */
   HRTIM_TIM_DeadTimeStructure.FallingLock = HRTIM_TIMDEADTIME_FALLINGLOCK_WRITE;
@@ -850,18 +845,6 @@ static void TestProgram(void)
   HRTIM_TIM_DeadTimeStructure.RisingValue = QB_OFF_DEADTIME;
   HRTIM_DeadTimeConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_TIM_DeadTimeStructure);
   
-  /* Configure HRTIM1_TIMB Deadtime */
-  HRTIM_TIM_DeadTimeStructure.FallingLock = HRTIM_TIMDEADTIME_FALLINGLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.FallingSign = HRTIM_TIMDEADTIME_FALLINGSIGN_POSITIVE;
-  HRTIM_TIM_DeadTimeStructure.FallingSignLock = HRTIM_TIMDEADTIME_FALLINGSIGNLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.FallingValue = QD_ON_DEADTIME;
-  HRTIM_TIM_DeadTimeStructure.Prescaler = 0x0;
-  HRTIM_TIM_DeadTimeStructure.RisingLock = HRTIM_TIMDEADTIME_RISINGLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.RisingSign = HRTIM_TIMDEADTIME_RISINGSIGN_POSITIVE;
-  HRTIM_TIM_DeadTimeStructure.RisingSignLock = HRTIM_TIMDEADTIME_RISINGSIGNLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.RisingValue = QD_OFF_DEADTIME;
-  HRTIM_DeadTimeConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_B, &HRTIM_TIM_DeadTimeStructure);
-  
   /* Initialize HRTIM1_TIMA and HRTIM1_TIMB */
   HRTIM_TimerInitStructure.BurstMode = HRTIM_TIMERBURSTMODE_MAINTAINCLOCK;
   HRTIM_TimerInitStructure.DACSynchro = HRTIM_DACSYNC_NONE;
@@ -871,9 +854,7 @@ static void TestProgram(void)
   HRTIM_TimerInitStructure.ResetOnSync = HRTIM_SYNCRESET_DISABLED;
   HRTIM_TimerInitStructure.StartOnSync = HRTIM_SYNCSTART_DISABLED;
   HRTIM_TimerInitStructure.UpdateGating = HRTIM_UPDATEGATING_INDEPENDENT;
-   
   HRTIM_Waveform_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_BaseInitStructure, &HRTIM_TimerInitStructure); 
-  HRTIM_Waveform_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_B, &HRTIM_BaseInitStructure, &HRTIM_TimerInitStructure);
   
   /*HRTIM 250KHz configuration */
   HRTIM_BaseInitStructure.Period = SetPeriod; /* 1 period = 4 µs = 100% time */
@@ -912,6 +893,8 @@ static void TestProgram(void)
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+
+  
   
   /* Configure and enable HRTIM interrupt */
   /* NVIC_InitStructure.NVIC_IRQChannel = HRTIM1_TIMB_IRQn;   	 
@@ -921,6 +904,9 @@ static void TestProgram(void)
      NVIC_Init(&NVIC_InitStructure);*/
   
   HRTIM_ITConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_TIM_IT_REP, ENABLE);
+  
+  //HRTIM_DLLCalibrationStart(HRTIM1, HRTIM_CALIBRATIONRATE_14);
+  //while((HRTIM_GetCommonFlagStatus(HRTIM1,HRTIM_FLAG_DLLRDY)) == RESET){}
   
   /* Enable the TA1 output */
   HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TA1);
@@ -933,6 +919,9 @@ static void TestProgram(void)
   
   /* Start H bridge converter in Buck Mode */
   SetHRTIM_BuckMode();
+  
+  /* Test Trap*/
+  while(1) {}
   
   /* ADC Configuration */
   ADC_Config();

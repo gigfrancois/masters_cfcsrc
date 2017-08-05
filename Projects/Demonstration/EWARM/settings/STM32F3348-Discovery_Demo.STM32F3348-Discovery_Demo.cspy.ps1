@@ -23,9 +23,9 @@ param([String]$debugfile = "");
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10- uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.general.xcl" --backend -f "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10- uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.general.xcl" --backend -f "C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10- uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\gigfr\Documents\Dropbox\Queens\2-thesis\CFCSRC\3-prototype\10- uController\en.stsw-stm32148\STM32F3348-Discovery_FW_V1.0.0\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Projects\Demonstration\EWARM\settings\STM32F3348-Discovery_Demo.STM32F3348-Discovery_Demo.driver.xcl" 
 }

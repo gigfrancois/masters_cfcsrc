@@ -72,6 +72,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f30x.h"
+#include "stm32f30x_rcc.h"
 
 /** @addtogroup CMSIS
   * @{
@@ -90,10 +91,10 @@
                                   This value must be a multiple of 0x200. */
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-//#define PLL_SOURCE_HSI        // HSI (~8 MHz) used to clock the PLL, and the PLL is used as system clock source
+#define PLL_SOURCE_HSI        // HSI (~8 MHz) used to clock the PLL, and the PLL is used as system clock source
 //#define PLL_SOURCE_HSE        // HSE (8MHz) used to clock the PLL, and the PLL is used as system clock source
-#define PLL_SOURCE_HSE_BYPASS   // HSE bypassed with an external clock (8MHz, coming from ST-Link) used to clock
-uint32_t SystemCoreClock = 72000000;
+//#define PLL_SOURCE_HSE_BYPASS   // HSE bypassed with an external clock (8MHz, coming from ST-Link) used to clock
+uint32_t SystemCoreClock = 64000000;
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /* Private function prototypes -----------------------------------------------*/
@@ -235,18 +236,16 @@ void SystemCoreClockUpdate (void)
   * @param  None
   * @retval None
   */
-static void SetSysClock(void)
-{
+static void SetSysClock(void) {
+  
   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
 
 #ifdef PLL_SOURCE_HSI
    /* At this stage the HSI is already enabled */
      
      /*  PLL configuration: PLLCLK = HSI/2 *16  = 64 MHz Max frequency on PLL HSI mode*/
-    RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL));
-    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_HSI_Div2 | RCC_CFGR_PLLMULL16);
-  
-
+    RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);
+    
 #else /* PLL_SOURCE_HSE_BYPASS or PLL_SOURCE_HSE */  
      
   /* Enable HSE */    
@@ -282,6 +281,9 @@ static void SetSysClock(void)
   else
   { /* If HSE fails to start-up, the application will have wrong clock 
          configuration. User can add here some code to deal with this error */
+    
+    volatile int test = 0;
+    test++;
   }
 
 #endif /*PLL_SOURCE_HSI*/
@@ -297,7 +299,7 @@ static void SetSysClock(void)
     /* PCLK1 = HCLK */
     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
     
-      /* Enable PLL */
+    /* Enable PLL */
     RCC->CR |= RCC_CR_PLLON;
     
     /* Wait till PLL is ready */

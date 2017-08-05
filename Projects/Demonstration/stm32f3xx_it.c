@@ -28,6 +28,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_it.h"
+#include "stm32f30x_gpio.h"
 
 /** @addtogroup STM32F3348-Discovery_Demo
 * @{
@@ -163,8 +164,13 @@ void PendSV_Handler(void)
 */
 void SysTick_Handler(void)
 {  
-  
   TimingDelay_Decrement();
+  
+  static int toggleCounter = 0;
+  
+  if (toggleCounter%2 == 0) {GPIO_SetBits(GPIOA, GPIO_Pin_4);}
+  else {GPIO_ResetBits(GPIOA, GPIO_Pin_4);}
+  toggleCounter++;
   
   /* Triangle Generation on PB14 */
   if (TriangleGeneration==1)
@@ -192,7 +198,6 @@ void SysTick_Handler(void)
       }
     }
   }
-  
 }
 
 /******************************************************************************/

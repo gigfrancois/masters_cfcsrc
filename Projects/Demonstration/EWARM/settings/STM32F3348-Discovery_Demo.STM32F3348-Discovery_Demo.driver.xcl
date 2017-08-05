@@ -6,11 +6,11 @@
 
 "-p" 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CONFIG\debugger\ST\STM32F334R8.ddf" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CONFIG\debugger\ST\STM32F334C8.ddf" 
 
 "--semihosting" 
 
-"--device=STM32F334R8" 
+"--device=STM32F334C8" 
 
 "--drv_interface=SWD" 
 
