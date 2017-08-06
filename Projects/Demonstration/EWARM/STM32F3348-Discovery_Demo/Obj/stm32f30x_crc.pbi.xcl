@@ -12,6 +12,8 @@ C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Projects\Demonstration
 -I
 C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Projects\Demonstration\EWARM\..\..\..\Utilities\STM32F3348-Discovery
 -I
+C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Libraries\custom\inc
+-I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\inc
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\inc\c
@@ -25,6 +27,8 @@ C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Libraries\CMSIS\Includ
 C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Libraries\STM32F30x_StdPeriph_Driver\inc
 -I
 C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Utilities\STM32F3348-Discovery
+-I
+C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Libraries\custom\inc
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

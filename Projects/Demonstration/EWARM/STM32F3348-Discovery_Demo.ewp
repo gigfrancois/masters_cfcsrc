@@ -346,6 +346,7 @@
                     <state>$PROJ_DIR$\..\..\..\Libraries\CMSIS\Include</state>
                     <state>$PROJ_DIR$\..\..\..\Libraries\STM32F30x_StdPeriph_Driver\inc</state>
                     <state>$PROJ_DIR$\..\..\..\Utilities\STM32F3348-Discovery</state>
+                    <state>C:\Users\gigfr\Documents\main\repositories\masters_cfcsrc\Libraries\custom\inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>

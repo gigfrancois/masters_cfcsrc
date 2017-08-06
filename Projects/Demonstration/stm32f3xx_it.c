@@ -29,6 +29,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_it.h"
 #include "stm32f30x_gpio.h"
+#include "types.h"
 
 /** @addtogroup STM32F3348-Discovery_Demo
 * @{
@@ -64,6 +65,7 @@ extern void SetHRTIM_BuckMode(void);
 extern void SetHRTIM_BoostMode(void);
 extern void HRTIM_SetBurstCompare(float BurstCompare);
 /* Private functions ---------------------------------------------------------*/
+void interruptDiagSignal(unsigned int duration);
 
 /******************************************************************************/
 /*            Cortex-M Processor Exceptions Handlers                          */
@@ -157,6 +159,21 @@ void PendSV_Handler(void)
 {
 }
 
+void interruptDiagSignal(unsigned int duration) {
+  
+  static bool myState = true;
+  static int toggleCounter = 0;
+  
+  if (toggleCounter%duration == 0) {
+    if (myState) { myState = 0;}
+    else {myState = 1;}
+  }
+  
+  myState ? GPIO_SetBits(GPIOA, GPIO_Pin_4) : GPIO_ResetBits(GPIOA, GPIO_Pin_4);
+  
+  toggleCounter++;
+}
+
 /**
 * @brief  This function handles SysTick Handler.
 * @param  None
@@ -166,11 +183,7 @@ void SysTick_Handler(void)
 {  
   TimingDelay_Decrement();
   
-  static int toggleCounter = 0;
-  
-  if (toggleCounter%2 == 0) {GPIO_SetBits(GPIOA, GPIO_Pin_4);}
-  else {GPIO_ResetBits(GPIOA, GPIO_Pin_4);}
-  toggleCounter++;
+  interruptDiagSignal(500);
   
   /* Triangle Generation on PB14 */
   if (TriangleGeneration==1)
