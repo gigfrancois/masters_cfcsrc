@@ -96,13 +96,25 @@ static void HRTIM_Config(void);
 static void ADC_Config(void);
 static void TriangleGenerationInit(void);
 void HRTIM_SetBurstCompare(float BurstCompare);
-static void TestProgram(void);
 void SetHRTIM_BuckMode(void);
 void SetHRTIM_BoostMode(void);
 static void HRTIM_Unselect_OutputTIMx(void);
 
+
+// HRTIM constants and macros
+#define kSystemClock 64000000
+#define kTimerPllMult 32
+#define kTimerTicksPerSecond kSystemClock*kTimerPllMult
+#define getTicksFromFreq(freq) (kTimerTicksPerSecond/freq)
+#define getTicksFromDutyCycle(freq, duty) duty*getTicksFromFreq(freq)
+
 void initGpios(void);
-void initHRTIM(void);
+void initTimer(void);
+
+// freq is in Hz
+void timerSetFrequency(uint32_t freq);
+// duty is in millipercents
+void timerSetdutyCycle(uint32_t duty, uint32_t freq);
 
 void initGpios(void) {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -121,27 +133,145 @@ void initGpios(void) {
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
-/**
-* @brief   Main program
-* @param  None
-* @retval None
-*/
+void initTimer(void) {  
+  HRTIM_BaseInitTypeDef    HRTIM_BaseInitStructure; 
+  HRTIM_DeadTimeCfgTypeDef HRTIM_TIM_DeadTimeStructure;
+  HRTIM_TimerInitTypeDef   HRTIM_TimerInitStructure;
+  HRTIM_OutputCfgTypeDef   HRTIM_TIM_OutputStructure;
+  HRTIM_CompareCfgTypeDef  HRTIM_CompareStructure;
+  
+  uint32_t period = getTicksFromFreq(100000); /*Period equivalent to 100kHz frequency */
+  uint32_t duty = getTicksFromDutyCycle(100000, 0.1); /*Buck Boost duty cycle Timer A initialization */
+   
+  /* Use the PLLx2 clock for HRTIM */
+  /* In the current case the PLL output is running at 64Mhz * 2 = 128Mhz*/
+  RCC_HRTIM1CLKConfig(RCC_HRTIM1CLK_PLLCLK);
+  
+  /* Enable the HRTIM, SYSCFG and GPIOs (port A, B, C) Clocks */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_HRTIM1, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB|RCC_AHBPeriph_GPIOC, ENABLE);
+  
+//  /* HRTIM DLL calibration: periodic calibration, set period to 14탎 */
+//  HRTIM_DLLCalibrationStart(HRTIM1, HRTIM_CALIBRATIONRATE_14);
+//  HRTIM1_COMMON->DLLCR |= HRTIM_DLLCR_CALEN; 
+//  /* Wait calibration completion*/
+//  while(HRTIM_GetCommonFlagStatus(HRTIM1, HRTIM_ISR_DLLRDY) == RESET);
+  
+//   (HRTIM1->HRTIM_COMMON).DLLCR = HRTIM_CALIBRATIONRATE_14| HRTIM_DLLCR_CALEN;
+//   /* Check DLL end of calibration flag */
+//   while((HRTIM1->HRTIM_COMMON.ISR) & HRTIM_IT_DLLRDY == RESET);
+  
+  /* Configure H bridge BuckBoost converter N and P MOS output config */
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;  
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;  
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+    
+  /* Configure HRTIM drivers PA8 HRTIM_CHA1 */
+  /* Alternate function configuration : HRTIM_CHA1 / PA8 */
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_13); /* A */
+
+  /* HRTIM intialisation startup */  
+  
+  /* Configure the output features */  
+  HRTIM_TIM_OutputStructure.Polarity = HRTIM_OUTPUTPOLARITY_HIGH; 
+  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;  
+  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTSET_TIMCMP1; 
+  HRTIM_TIM_OutputStructure.IdleMode = HRTIM_OUTPUTIDLEMODE_NONE;  
+  HRTIM_TIM_OutputStructure.IdleState = HRTIM_OUTPUTIDLESTATE_INACTIVE;          
+  HRTIM_TIM_OutputStructure.FaultState = HRTIM_OUTPUTFAULTSTATE_NONE;          
+  HRTIM_TIM_OutputStructure.ChopperModeEnable = HRTIM_OUTPUTCHOPPERMODE_DISABLED;        
+  HRTIM_TIM_OutputStructure.BurstModeEntryDelayed = HRTIM_OUTPUTBURSTMODEENTRY_REGULAR;
+  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_OUTPUT_TA1, &HRTIM_TIM_OutputStructure);
+
+  /* HRTIM1_TIMA and HRTIM1_TIMB Deadtime enable */
+  HRTIM_TimerWaveStructure.DeadTimeInsertion = HRTIM_TIMDEADTIMEINSERTION_DISABLED;
+  HRTIM_TimerWaveStructure.DelayedProtectionMode = HRTIM_TIMDELAYEDPROTECTION_DISABLED;
+  HRTIM_TimerWaveStructure.FaultEnable = HRTIM_TIMFAULTENABLE_NONE;
+  HRTIM_TimerWaveStructure.FaultLock = HRTIM_TIMFAULTLOCK_READWRITE;
+  HRTIM_TimerWaveStructure.PushPull = HRTIM_TIMPUSHPULLMODE_DISABLED;
+  HRTIM_TimerWaveStructure.ResetTrigger = HRTIM_TIMRESETTRIGGER_NONE; 
+  HRTIM_TimerWaveStructure.ResetUpdate = HRTIM_TIMUPDATEONRESET_DISABLED;
+  HRTIM_TimerWaveStructure.UpdateTrigger = HRTIM_TIMUPDATETRIGGER_NONE; 
+  HRTIM_WaveformTimerConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_TimerWaveStructure);
+  
+  /* Configure HRTIM1_TIMA Deadtime */
+  HRTIM_TIM_DeadTimeStructure.FallingLock = HRTIM_TIMDEADTIME_FALLINGLOCK_WRITE;
+  HRTIM_TIM_DeadTimeStructure.FallingSign = HRTIM_TIMDEADTIME_FALLINGSIGN_POSITIVE;
+  HRTIM_TIM_DeadTimeStructure.FallingSignLock = HRTIM_TIMDEADTIME_FALLINGSIGNLOCK_WRITE;
+  HRTIM_TIM_DeadTimeStructure.FallingValue = QB_ON_DEADTIME;
+  HRTIM_TIM_DeadTimeStructure.Prescaler = 0x0;
+  HRTIM_TIM_DeadTimeStructure.RisingLock = HRTIM_TIMDEADTIME_RISINGLOCK_WRITE;
+  HRTIM_TIM_DeadTimeStructure.RisingSign = HRTIM_TIMDEADTIME_RISINGSIGN_POSITIVE;
+  HRTIM_TIM_DeadTimeStructure.RisingSignLock = HRTIM_TIMDEADTIME_RISINGSIGNLOCK_WRITE;
+  HRTIM_TIM_DeadTimeStructure.RisingValue = QB_OFF_DEADTIME;
+  HRTIM_DeadTimeConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_TIM_DeadTimeStructure);
+  
+  /* Initialize HRTIM1_TIMA and HRTIM1_TIMB */
+  HRTIM_TimerInitStructure.BurstMode = HRTIM_TIMERBURSTMODE_MAINTAINCLOCK;
+  HRTIM_TimerInitStructure.DACSynchro = HRTIM_DACSYNC_NONE;
+  HRTIM_TimerInitStructure.HalfModeEnable = HRTIM_HALFMODE_DISABLED;
+  HRTIM_TimerInitStructure.PreloadEnable = HRTIM_PRELOAD_ENABLED;
+  HRTIM_TimerInitStructure.RepetitionUpdate = HRTIM_UPDATEONREPETITION_ENABLED;
+  HRTIM_TimerInitStructure.ResetOnSync = HRTIM_SYNCRESET_DISABLED;
+  HRTIM_TimerInitStructure.StartOnSync = HRTIM_SYNCSTART_DISABLED;
+  HRTIM_TimerInitStructure.UpdateGating = HRTIM_UPDATEGATING_INDEPENDENT;
+  HRTIM_Waveform_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_BaseInitStructure, &HRTIM_TimerInitStructure); 
+  
+  /*HRTIM Period Configuration */
+  HRTIM_BaseInitStructure.Period = period; /* 1 period = 4 탎 = 100% time */
+  HRTIM_BaseInitStructure.RepetitionCounter = 10;                               // Interrupt will be generated every 11 periods
+  HRTIM_BaseInitStructure.PrescalerRatio = HRTIM_PRESCALERRATIO_MUL16;          // Accelerate the input clock by a factor or 32
+  HRTIM_BaseInitStructure.Mode = HRTIM_MODE_CONTINOUS;                          
+  HRTIM_SimpleBase_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_BaseInitStructure);
+  
+  /* HRTIM duty-cycle configuration*/
+  HRTIM_CompareStructure.AutoDelayedMode = HRTIM_AUTODELAYEDMODE_REGULAR;
+  HRTIM_CompareStructure.AutoDelayedTimeout = duty; 
+  HRTIM_CompareStructure.CompareValue = duty;
+  HRTIM_WaveformCompareConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_COMPAREUNIT_1, &HRTIM_CompareStructure);
+  
+  /* End HRTIM 250KHz configuration */
+  
+  /* Configure and enable HRTIM interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = HRTIM1_TIMA_IRQn;   	 
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  HRTIM_ITConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_TIM_IT_REP, ENABLE);
+  
+  /* Enable the TA1 output */
+  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TA1);
+  HRTIM_WaveformCounterStart(HRTIM1, HRTIM_TIMERID_TIMER_A | HRTIM_TIMERID_TIMER_B); 
+}
+
+void timerSetFrequency(uint32_t freq) {
+  HRTIM1->HRTIM_TIMERx[HRTIM_TIMERINDEX_TIMER_A].PERxR = getTicksFromFreq(freq);
+}
+
+void timerSetdutyCycle(uint32_t duty, uint32_t freq) {
+  HRTIM1->HRTIM_TIMERx[HRTIM_TIMERINDEX_TIMER_A].CMP1xR = (duty*getTicksFromFreq(freq))/(1000*100);
+}
+
 int main(void)
 {
-  /*!< At this stage the microcontroller clock setting is already configured, 
-  this is done through SystemInit() function which is called from startup
-  files (startup_stm32f334x8.s) before to branch to application main. 
-  To reconfigure the default setting of SystemInit() function, refer to
-  system_stm32f30x.c file
-  */  
-
   /* SysTick end of count event each 1ms */
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick_Config(RCC_Clocks.HCLK_Frequency / 1000);
   
   initGpios();
   
-  TestProgram();
+  initTimer();
+  
+  timerSetFrequency(50000);
+  timerSetdutyCycle(20*1000, 50000);
+  
+  while(1) {}
 }
 
 /**
@@ -424,67 +554,67 @@ static void HRTIM_Config(void)
 * @param  None
 * @retval None
 */
-static void TriangleGenerationInit(void)
-{
-  HRTIM_OutputCfgTypeDef  HRTIM_TIM_OutputStructure;
-  HRTIM_BaseInitTypeDef   HRTIM_BaseInitStructure;
-  HRTIM_TimerCfgTypeDef   HRTIM_TimerWaveStructure;
-  HRTIM_CompareCfgTypeDef HRTIM_CompareStructure;
-  
-  /* GPIOB Peripheral clock enable */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-  
-  /* HRTIM output channel configuration : HRTIM_CHD1 / PB14 */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOB, &GPIO_InitStructure); 
-  
-  /* Alternate function configuration : HRTIM_CHD1 / PB14 */
-  GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_13);
-  
-  /* Configure the output features */  
-  HRTIM_TIM_OutputStructure.Polarity = HRTIM_OUTPUTPOLARITY_HIGH; 
-  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;  
-  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTRESET_TIMCMP1; 
-  HRTIM_TIM_OutputStructure.IdleMode = HRTIM_OUTPUTIDLEMODE_NONE;  
-  HRTIM_TIM_OutputStructure.IdleState = HRTIM_OUTPUTIDLESTATE_INACTIVE;          
-  HRTIM_TIM_OutputStructure.FaultState = HRTIM_OUTPUTFAULTSTATE_NONE;          
-  HRTIM_TIM_OutputStructure.ChopperModeEnable = HRTIM_OUTPUTCHOPPERMODE_DISABLED;        
-  HRTIM_TIM_OutputStructure.BurstModeEntryDelayed = HRTIM_OUTPUTBURSTMODEENTRY_REGULAR;
-  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, HRTIM_OUTPUT_TC1, &HRTIM_TIM_OutputStructure);
-  
-  /* Configure HRTIM1_TIMD Deadtime */
-  HRTIM_TimerWaveStructure.DeadTimeInsertion = HRTIM_TIMDEADTIMEINSERTION_DISABLED;
-  HRTIM_TimerWaveStructure.DelayedProtectionMode = HRTIM_TIMDELAYEDPROTECTION_DISABLED;
-  HRTIM_TimerWaveStructure.FaultEnable = HRTIM_TIMFAULTENABLE_NONE;
-  HRTIM_TimerWaveStructure.FaultLock = HRTIM_TIMFAULTLOCK_READWRITE;
-  HRTIM_TimerWaveStructure.PushPull = HRTIM_TIMPUSHPULLMODE_DISABLED;
-  HRTIM_TimerWaveStructure.ResetTrigger = HRTIM_TIMRESETTRIGGER_NONE;
-  HRTIM_TimerWaveStructure.ResetUpdate = HRTIM_TIMUPDATEONRESET_DISABLED;
-  HRTIM_TimerWaveStructure.UpdateTrigger = HRTIM_TIMUPDATETRIGGER_TIMER_D; 
-  HRTIM_WaveformTimerConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, &HRTIM_TimerWaveStructure);
-  
-  HRTIM_BaseInitStructure.Period = 0x900; /* 2MHz => 2304 = 0x900 (timer input clock freq is 144MHz x 32)*/
-  HRTIM_BaseInitStructure.RepetitionCounter = 0x00;
-  HRTIM_BaseInitStructure.PrescalerRatio = HRTIM_PRESCALERRATIO_MUL32;  
-  HRTIM_BaseInitStructure.Mode = HRTIM_MODE_CONTINOUS;          
-  HRTIM_SimpleBase_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, &HRTIM_BaseInitStructure);
-  
-  HRTIM_CompareStructure.AutoDelayedMode = HRTIM_AUTODELAYEDMODE_REGULAR;
-  HRTIM_CompareStructure.AutoDelayedTimeout = 0; /* meaningless in regular mode */
-  HRTIM_CompareStructure.CompareValue = TriangCMP1;
-  HRTIM_WaveformCompareConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, HRTIM_COMPAREUNIT_1, &HRTIM_CompareStructure);
-  
-  /* Enable the TD1 output */
-  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TD1); 
-  
-  /* Start slave timer D*/
-  HRTIM_WaveformCounterStart(HRTIM1, HRTIM_TIMERID_TIMER_D);
-  
-}
+//static void TriangleGenerationInit(void)
+//{
+//  HRTIM_OutputCfgTypeDef  HRTIM_TIM_OutputStructure;
+//  HRTIM_BaseInitTypeDef   HRTIM_BaseInitStructure;
+//  HRTIM_TimerCfgTypeDef   HRTIM_TimerWaveStructure;
+//  HRTIM_CompareCfgTypeDef HRTIM_CompareStructure;
+//  
+//  /* GPIOB Peripheral clock enable */
+//  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+//  
+//  /* HRTIM output channel configuration : HRTIM_CHD1 / PB14 */
+//  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+//  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+//  GPIO_Init(GPIOB, &GPIO_InitStructure); 
+//  
+//  /* Alternate function configuration : HRTIM_CHD1 / PB14 */
+//  GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_13);
+//  
+//  /* Configure the output features */  
+//  HRTIM_TIM_OutputStructure.Polarity = HRTIM_OUTPUTPOLARITY_HIGH; 
+//  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;  
+//  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTRESET_TIMCMP1; 
+//  HRTIM_TIM_OutputStructure.IdleMode = HRTIM_OUTPUTIDLEMODE_NONE;  
+//  HRTIM_TIM_OutputStructure.IdleState = HRTIM_OUTPUTIDLESTATE_INACTIVE;          
+//  HRTIM_TIM_OutputStructure.FaultState = HRTIM_OUTPUTFAULTSTATE_NONE;          
+//  HRTIM_TIM_OutputStructure.ChopperModeEnable = HRTIM_OUTPUTCHOPPERMODE_DISABLED;        
+//  HRTIM_TIM_OutputStructure.BurstModeEntryDelayed = HRTIM_OUTPUTBURSTMODEENTRY_REGULAR;
+//  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, HRTIM_OUTPUT_TC1, &HRTIM_TIM_OutputStructure);
+//  
+//  /* Configure HRTIM1_TIMD Deadtime */
+//  HRTIM_TimerWaveStructure.DeadTimeInsertion = HRTIM_TIMDEADTIMEINSERTION_DISABLED;
+//  HRTIM_TimerWaveStructure.DelayedProtectionMode = HRTIM_TIMDELAYEDPROTECTION_DISABLED;
+//  HRTIM_TimerWaveStructure.FaultEnable = HRTIM_TIMFAULTENABLE_NONE;
+//  HRTIM_TimerWaveStructure.FaultLock = HRTIM_TIMFAULTLOCK_READWRITE;
+//  HRTIM_TimerWaveStructure.PushPull = HRTIM_TIMPUSHPULLMODE_DISABLED;
+//  HRTIM_TimerWaveStructure.ResetTrigger = HRTIM_TIMRESETTRIGGER_NONE;
+//  HRTIM_TimerWaveStructure.ResetUpdate = HRTIM_TIMUPDATEONRESET_DISABLED;
+//  HRTIM_TimerWaveStructure.UpdateTrigger = HRTIM_TIMUPDATETRIGGER_TIMER_D; 
+//  HRTIM_WaveformTimerConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, &HRTIM_TimerWaveStructure);
+//  
+//  HRTIM_BaseInitStructure.Period = 0x900; /* 2MHz => 2304 = 0x900 (timer input clock freq is 144MHz x 32)*/
+//  HRTIM_BaseInitStructure.RepetitionCounter = 0x00;
+//  HRTIM_BaseInitStructure.PrescalerRatio = HRTIM_PRESCALERRATIO_MUL32;  
+//  HRTIM_BaseInitStructure.Mode = HRTIM_MODE_CONTINOUS;          
+//  HRTIM_SimpleBase_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, &HRTIM_BaseInitStructure);
+//  
+//  HRTIM_CompareStructure.AutoDelayedMode = HRTIM_AUTODELAYEDMODE_REGULAR;
+//  HRTIM_CompareStructure.AutoDelayedTimeout = 0; /* meaningless in regular mode */
+//  HRTIM_CompareStructure.CompareValue = TriangCMP1;
+//  HRTIM_WaveformCompareConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_D, HRTIM_COMPAREUNIT_1, &HRTIM_CompareStructure);
+//  
+//  /* Enable the TD1 output */
+//  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TD1); 
+//  
+//  /* Start slave timer D*/
+//  HRTIM_WaveformCounterStart(HRTIM1, HRTIM_TIMERID_TIMER_D);
+//  
+//}
 
 /**
 * @brief  Set Burst Compare value
@@ -497,330 +627,22 @@ void HRTIM_SetBurstCompare(float BurstCompare)
   HRTIM1_COMMON->BMCMPR = (uint16_t)BurstCompare; 
 }
 
-unsigned int getTicksFromFrequency(unsigned long freq, unsigned long timerInFreq, float gainTimerInFreq);
+//void setFrequency(unsigned int frequency) {
+//  
+//}
+//
+//void setDutyCycle(unsigned int frequency) {
+//  
+//}
 
-unsigned int getTicksFromFrequency(unsigned long freq, unsigned long timerInFreq, float gainTimerInFreq) {
-  
-  unsigned int timerTicks_per_second = timerInFreq*gainTimerInFreq;
-  
-   return timerTicks_per_second/freq;
-}
+
+
 
 /**
 * @brief  Checks the Discovery Kit features.
 * @param  None
 * @retval None
 */
-static void TestProgram(void)
-{  
-  HRTIM_BaseInitTypeDef    HRTIM_BaseInitStructure; 
-  HRTIM_DeadTimeCfgTypeDef HRTIM_TIM_DeadTimeStructure;
-  HRTIM_TimerInitTypeDef   HRTIM_TimerInitStructure;
-  HRTIM_OutputCfgTypeDef   HRTIM_TIM_OutputStructure;
-  HRTIM_CompareCfgTypeDef  HRTIM_CompareStructure;
-  
-  volatile uint32_t SetPeriod = getTicksFromFrequency(100000, 128000000, 32); /*Period equivalent to 250kHz frequency */
-  uint32_t DutyCycleTimA = 4096; /*Buck Boost duty cycle Timer A initialization */
-  uint32_t BlankTimeTimA = 500; /*Blank Time between alternate BuckBoost Timer A initialization */
-  uint32_t MinTimeTimA = 500; /*Min time corresponding to DutyCycle Max = 97% */
-  uint32_t ADCTriggerValue = 1000; /*ADC trigger Event time where noise is not present */
-   
-  /* Use the PLLx2 clock for HRTIM */
-  /* In the current case the PLL output is running at 64Mhz * 2 = 128Mhz*/
-  RCC_HRTIM1CLKConfig(RCC_HRTIM1CLK_PLLCLK);
-  
-  /* Enable the HRTIM, SYSCFG and GPIOs (port A, B, C) Clocks */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_HRTIM1, ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB|RCC_AHBPeriph_GPIOC, ENABLE);
-  
-//  /* HRTIM DLL calibration: periodic calibration, set period to 14탎 */
-//  HRTIM_DLLCalibrationStart(HRTIM1, HRTIM_CALIBRATIONRATE_14);
-//  HRTIM1_COMMON->DLLCR |= HRTIM_DLLCR_CALEN; 
-//  /* Wait calibration completion*/
-//  while(HRTIM_GetCommonFlagStatus(HRTIM1, HRTIM_ISR_DLLRDY) == RESET);
-  
-  /* Configure H bridge BuckBoost converter N and P MOS output config */
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;  
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;  
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-    
-  /* Configure HRTIM drivers PA8 HRTIM_CHA1 */
-  /* Alternate function configuration : HRTIM_CHA1 / PA8 */
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_13); /* A */
-
-  /* HRTIM intialisation startup */  
-  
-  /* Configure the output features */  
-  HRTIM_TIM_OutputStructure.Polarity = HRTIM_OUTPUTPOLARITY_HIGH; 
-  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;  
-  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTRESET_TIMCMP1; 
-  HRTIM_TIM_OutputStructure.IdleMode = HRTIM_OUTPUTIDLEMODE_NONE;  
-  HRTIM_TIM_OutputStructure.IdleState = HRTIM_OUTPUTIDLESTATE_INACTIVE;          
-  HRTIM_TIM_OutputStructure.FaultState = HRTIM_OUTPUTFAULTSTATE_NONE;          
-  HRTIM_TIM_OutputStructure.ChopperModeEnable = HRTIM_OUTPUTCHOPPERMODE_DISABLED;        
-  HRTIM_TIM_OutputStructure.BurstModeEntryDelayed = HRTIM_OUTPUTBURSTMODEENTRY_REGULAR;
-  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_OUTPUT_TA1, &HRTIM_TIM_OutputStructure);
-
-  /* HRTIM1_TIMA and HRTIM1_TIMB Deadtime enable */
-  HRTIM_TimerWaveStructure.DeadTimeInsertion = HRTIM_TIMDEADTIMEINSERTION_ENABLED;
-  HRTIM_TimerWaveStructure.DelayedProtectionMode = HRTIM_TIMDELAYEDPROTECTION_DISABLED;
-  HRTIM_TimerWaveStructure.FaultEnable = HRTIM_TIMFAULTENABLE_NONE;
-  HRTIM_TimerWaveStructure.FaultLock = HRTIM_TIMFAULTLOCK_READWRITE;
-  HRTIM_TimerWaveStructure.PushPull = HRTIM_TIMPUSHPULLMODE_DISABLED;
-  HRTIM_TimerWaveStructure.ResetTrigger = HRTIM_TIMRESETTRIGGER_NONE; 
-  HRTIM_TimerWaveStructure.ResetUpdate = HRTIM_TIMUPDATEONRESET_DISABLED;
-  HRTIM_TimerWaveStructure.UpdateTrigger = HRTIM_TIMUPDATETRIGGER_NONE; 
-  HRTIM_WaveformTimerConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_TimerWaveStructure);
-  
-  /* Configure HRTIM1_TIMA Deadtime */
-  HRTIM_TIM_DeadTimeStructure.FallingLock = HRTIM_TIMDEADTIME_FALLINGLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.FallingSign = HRTIM_TIMDEADTIME_FALLINGSIGN_POSITIVE;
-  HRTIM_TIM_DeadTimeStructure.FallingSignLock = HRTIM_TIMDEADTIME_FALLINGSIGNLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.FallingValue = QB_ON_DEADTIME;
-  HRTIM_TIM_DeadTimeStructure.Prescaler = 0x0;
-  HRTIM_TIM_DeadTimeStructure.RisingLock = HRTIM_TIMDEADTIME_RISINGLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.RisingSign = HRTIM_TIMDEADTIME_RISINGSIGN_POSITIVE;
-  HRTIM_TIM_DeadTimeStructure.RisingSignLock = HRTIM_TIMDEADTIME_RISINGSIGNLOCK_WRITE;
-  HRTIM_TIM_DeadTimeStructure.RisingValue = QB_OFF_DEADTIME;
-  HRTIM_DeadTimeConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_TIM_DeadTimeStructure);
-  
-  /* Initialize HRTIM1_TIMA and HRTIM1_TIMB */
-  HRTIM_TimerInitStructure.BurstMode = HRTIM_TIMERBURSTMODE_MAINTAINCLOCK;
-  HRTIM_TimerInitStructure.DACSynchro = HRTIM_DACSYNC_NONE;
-  HRTIM_TimerInitStructure.HalfModeEnable = HRTIM_HALFMODE_DISABLED;
-  HRTIM_TimerInitStructure.PreloadEnable = HRTIM_PRELOAD_ENABLED;
-  HRTIM_TimerInitStructure.RepetitionUpdate = HRTIM_UPDATEONREPETITION_ENABLED;
-  HRTIM_TimerInitStructure.ResetOnSync = HRTIM_SYNCRESET_DISABLED;
-  HRTIM_TimerInitStructure.StartOnSync = HRTIM_SYNCSTART_DISABLED;
-  HRTIM_TimerInitStructure.UpdateGating = HRTIM_UPDATEGATING_INDEPENDENT;
-  HRTIM_Waveform_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_BaseInitStructure, &HRTIM_TimerInitStructure); 
-  
-  /*HRTIM Period Configuration */
-  HRTIM_BaseInitStructure.Period = SetPeriod; /* 1 period = 4 탎 = 100% time */
-  HRTIM_BaseInitStructure.RepetitionCounter = 10;                               // Slows down the input clock by a factor of 10
-  HRTIM_BaseInitStructure.PrescalerRatio = HRTIM_PRESCALERRATIO_MUL32;          // Accelerate the input clock by a factor or 32
-  HRTIM_BaseInitStructure.Mode = HRTIM_MODE_CONTINOUS;                          
-  HRTIM_SimpleBase_Init(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, &HRTIM_BaseInitStructure);
-  
-  /* HRTIM duty-cycle configuration*/
-  HRTIM_CompareStructure.AutoDelayedMode = HRTIM_AUTODELAYEDMODE_REGULAR;
-  HRTIM_CompareStructure.AutoDelayedTimeout = DutyCycleTimA; 
-  HRTIM_CompareStructure.CompareValue = DutyCycleTimA;
-  HRTIM_WaveformCompareConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_COMPAREUNIT_1, &HRTIM_CompareStructure);
-  
-  /* End HRTIM 250KHz configuration */
-  
-  /* Configure and enable HRTIM interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = HRTIM1_TIMA_IRQn;   	 
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-  
-  HRTIM_ITConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_TIM_IT_REP, ENABLE);
-  
-  /* Enable the TA1 output */
-  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TA1);
-  /* Enable the TA2 output */
-  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TA2);
-  /* Enable the TB1 output */
-  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TB1);  
-  /* Enable the TB2 output */
-  HRTIM_WaveformOutputStart(HRTIM1, HRTIM_OUTPUT_TB2);
-  
-  /* Start H bridge converter in Buck Mode */
-  SetHRTIM_BuckMode();
-  
-  /* Test Trap*/
-  while(1) {}
-  
-  /* ADC Configuration */
-  ADC_Config();
-  
-  Delay(10000); 
-  while(1)
-  {
-    uint32_t timeout = 0 ;
-    
-    /* Check if VIN connected to 5V and wait until voltage is present and included in the expected range */
-    /* Range is 4.5V to 5.5V */
-    while ((VIN < Min_Voltage) | (VIN >  Max_Voltage))
-    {
-      /* Enable next trigger on ADC during data process*/
-      ADC_StartInjectedConversion(ADC1);
-      /* Compute the voltage (Voltages have to be multiplied by ~5 as bridge divider is ~20%) */
-      ADC1_Channel1_ConvertedValue_IN = ADC1_Channel1_ConvertedValue_IN * REFINT_CAL / ADC1ReferenceConvertedValue;
-      VIN = (ADC1_Channel1_ConvertedValue_IN *3300)/0xFFF;
-      /* VIN bridge conversion is 4.97 (6.8K / 6.8K + 27K) */
-      VIN = (497 * VIN )/100;
-      timeout++;
-      if (timeout >= 100)
-      {
-        while(1)
-        {   
-          /* Orange LED is blinking to alert on missing input voltage */
-          STM_EVAL_LEDOn(LED4);
-          Delay(10000);
-          STM_EVAL_LEDOff(LED4);
-          Delay(10000);
-        }
-      }
-    }
-    /* Input voltage connected with expected value: Green LED is ON */
-    STM_EVAL_LEDOn(LED5);
-    /* Set Boost Mode and Vout target value to 10V  */
-    VOUT_Target = 10000;
-    Current_Mode = BOOST;
-    Converter_Mode_Change =1; 
-    Delay(10000);
-    /* Enable next trigger on ADC during data process*/
-    ADC_StartInjectedConversion(ADC1);
-    while((VOUT < (VOUT_Target - 5))| (VOUT > (VOUT_Target + 5)))
-    {
-      /* VIN and VOUT ADC sampling */
-      ADC1_Channel1_ConvertedValue_IN = ADC1_Channel1_ConvertedValue_IN * REFINT_CAL / ADC1ReferenceConvertedValue;
-      ADC1_Channel1_ConvertedValue_OUT = ADC1_Channel1_ConvertedValue_OUT * REFINT_CAL / ADC1ReferenceConvertedValue;
-      
-      VIN = (ADC1_Channel1_ConvertedValue_IN *3300)/0xFFF;
-      VOUT = (ADC1_Channel1_ConvertedValue_OUT *3300)/0xFFF;
-      VIN = (497 * VIN )/100;
-      /* VOUT bridge conversion is 5.03 (3.3K / 3.3K + 13.3K) */
-      VOUT = (503 * VOUT)/100;
-      /* Control Timer A Duty Cycle to reach the VOUT target */ 
-      if(VOUT <= VOUT_Target)
-      {
-        DutyCycleTimA +=10;
-        if (DutyCycleTimA >= SetPeriod - MinTimeTimA)
-        {
-          DutyCycleTimA = SetPeriod - MinTimeTimA;
-        }
-      }
-      else
-      {
-        DutyCycleTimA -=10;
-        if (DutyCycleTimA<= MinTimeTimA)
-        {
-          DutyCycleTimA = MinTimeTimA;
-        }  
-      }
-      timeout++;
-      HRTIM_SlaveSetCompare(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_COMPAREUNIT_1,  DutyCycleTimA);
-      Delay(50);
-      /* Enable next trigger on ADC during data process*/
-      ADC_StartInjectedConversion(ADC1);
-      /* Verify if timeout not reached OR VIN not in expected range */
-      if ((timeout > 10000) | (VIN < Min_Voltage) | (VIN >  Max_Voltage))
-      {
-        STM_EVAL_LEDOff(LED5);        
-        while (1)
-        {
-          /* Red LED is set to alert on Buck boost function failure */
-          STM_EVAL_LEDOn(LED3);
-          Delay(10000);
-          STM_EVAL_LEDOff(LED3);
-          Delay(10000);
-        }
-      }     
-    }
-    while(!Keypressed)
-    {
-      /* Boost mode successful */
-      /* Blue LED is toggling */
-      STM_EVAL_LEDOn(LED6);
-      Delay(10000);
-      STM_EVAL_LEDOff(LED6);
-      Delay(10000);
-    }
-    Keypressed = FALSE;
-    
-    /* Set Buck Mode and Vout target value to 2V  */
-    VOUT_Target = 2000;
-    Current_Mode = BUCK;
-    Converter_Mode_Change =1;
-    Delay(1000); 
-    timeout = 0;
-    
-    STM_EVAL_LEDOn(LED6);
-    STM_EVAL_LEDOff(LED5);
-    
-    while((VOUT < (VOUT_Target - 5))| (VOUT > (VOUT_Target + 5)))
-    {
-      /* VIN and VOUT ADC sampling */
-      ADC1_Channel1_ConvertedValue_IN = ADC1_Channel1_ConvertedValue_IN * REFINT_CAL / ADC1ReferenceConvertedValue;
-      ADC1_Channel1_ConvertedValue_OUT = ADC1_Channel1_ConvertedValue_OUT * REFINT_CAL / ADC1ReferenceConvertedValue;
-      
-      VIN = (ADC1_Channel1_ConvertedValue_IN *3300)/0xFFF;
-      VOUT = (ADC1_Channel1_ConvertedValue_OUT *3300)/0xFFF;
-      VIN = (497 * VIN )/100;
-      VOUT = (503 * VOUT)/100;  
-      /* Control Timer A Duty Cycle to reach the VOUT target */       
-      if(VOUT <= VOUT_Target)
-      {
-        DutyCycleTimA +=10;
-        if (DutyCycleTimA >= SetPeriod - MinTimeTimA)
-        {
-          DutyCycleTimA = SetPeriod - MinTimeTimA;
-        }
-      }
-      else
-      {
-        DutyCycleTimA -=10;
-        if (DutyCycleTimA<= MinTimeTimA)
-        {
-          DutyCycleTimA = MinTimeTimA;
-        }  
-      }
-      timeout++;
-      HRTIM_SlaveSetCompare(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_COMPAREUNIT_1,  DutyCycleTimA);
-      Delay(50);
-      /* Enable next trigger on ADC during data process*/
-      ADC_StartInjectedConversion(ADC1);
-      /* Verify if timeout not reached OR VIN not in expected range */      
-      if ((timeout > 10000) | (VIN < Min_Voltage) | (VIN >  Max_Voltage))
-      {
-        STM_EVAL_LEDOff(LED6);     
-        while (1)
-        {
-          /* Red LED is set to alert on Buck boost function failure */
-          STM_EVAL_LEDOn(LED3);
-          Delay(10000);
-          STM_EVAL_LEDOn(LED3);
-          Delay(10000);
-        }
-      } 
-    }
-    
-    while(!Keypressed)
-    {
-      /* Buck mode successful */
-      /* Green LED is toggling */
-      STM_EVAL_LEDOn(LED5);
-      Delay(10000);
-      STM_EVAL_LEDOff(LED5);
-      Delay(10000);
-    } 
-    while (1)
-      /* Test complete */
-    {
-      /* All LEDs are toggling : TEST SUCCESSFUL */
-      STM_EVAL_LEDOn(LED3);  
-      STM_EVAL_LEDOn(LED4);
-      STM_EVAL_LEDOn(LED5);          
-      STM_EVAL_LEDOn(LED6);
-      Delay(15000);
-      STM_EVAL_LEDOff(LED3);
-      STM_EVAL_LEDOff(LED4);
-      STM_EVAL_LEDOff(LED5);
-      STM_EVAL_LEDOff(LED6);
-      Delay(15000);
-    }
-  }  
-}
-
 
 /**
 * @brief  ADC configuration
@@ -993,20 +815,11 @@ static void ADC_Config(void)
 */
 void SetHRTIM_BuckMode(void)
 {
-  HRTIM_Unselect_OutputTIMx();
+  //HRTIM_Unselect_OutputTIMx();
   /* Set TIMA A1(PA8) and A2(PA9) opposite PWM ouputs */
-  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;  
-  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTSET_TIMCMP1; 
-  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_OUTPUT_TA1, &HRTIM_TIM_OutputStructure);
-  
-  /* Reset Output B1(PA10) to open T12 NMOS and set B2 (PA11) to close T5 PMOS bridge, operated as I/O */
-  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_NONE;
-  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTSET_TIMPER; 
-  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_B, HRTIM_OUTPUT_TB1, &HRTIM_TIM_OutputStructure);
-  
-  HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;
-  HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTSET_NONE;
-  HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_B, HRTIM_OUTPUT_TB2, &HRTIM_TIM_OutputStructure);
+  //HRTIM_TIM_OutputStructure.SetSource = HRTIM_OUTPUTSET_TIMPER;  
+  //HRTIM_TIM_OutputStructure.ResetSource = HRTIM_OUTPUTSET_TIMCMP1; 
+  //HRTIM_WaveformOutputConfig(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_OUTPUT_TA1, &HRTIM_TIM_OutputStructure);
   
   /* Start both TIMA and TIMB */
   HRTIM_WaveformCounterStart(HRTIM1, HRTIM_TIMERID_TIMER_A | HRTIM_TIMERID_TIMER_B); 

@@ -297,21 +297,6 @@ void EXTI0_IRQHandler(void)
 */
 void HRTIM1_TIMA_IRQHandler(void)
 {
-  /* Converter mode is changed during interrupt to synchronize HRTIM output changes */
-  if(Converter_Mode_Change)
-  {
-    switch(Current_Mode)
-    {
-    case BUCK:
-      SetHRTIM_BuckMode();
-      break;
-      
-    case BOOST:
-      SetHRTIM_BoostMode();
-      break;
-      
-    }
-  }
   /* Reset HRTIMA repetition flag */
   HRTIM_ClearFlag(HRTIM1, HRTIM_TIMERINDEX_TIMER_A, HRTIM_TIM_FLAG_REP);
 }
